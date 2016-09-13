@@ -5,7 +5,6 @@
 
 /*Initalizes Header*/
 dataHeader *buildHeader() {
-
     dataHeader *header;
     header = malloc(sizeof(dataHeader));
     header->name = NULL;
@@ -26,4 +25,16 @@ char *getName(dataHeader *header) {
 
 int getLength(dataHeader *header) {
     return header->length;
+}
+
+void addString(dataHeader *header, char *str) {
+    dataString *string;
+    string = malloc(sizeof(dataString));
+
+    string->string = NULL;
+    string->string = malloc(sizeof(str));
+    strncpy(string->string, str, (sizeof(str) + 1));
+
+    string->next = header->next;
+    header->next = string;
 }

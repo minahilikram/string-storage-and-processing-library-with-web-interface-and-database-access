@@ -10,9 +10,7 @@ typedef struct {
 } dataString;
 
 /* Preconditions: None.
-
-Postconditions: Returns a pointer to a struct of type dataHeader.
-It dynamically allocates the structure and sets the initial values of the variables. */
+Postconditions: Returns a pointer to a struct of type dataHeader. It dynamically allocates the structure and sets the initial values of the variables. */
 dataHeader *buildHeader();
 
 
@@ -29,3 +27,8 @@ char *getName(dataHeader *header);
 /* Preconditions: An initalized dataHeader is available.
 Postconditions: Returns the integer value stored in the length variable in the dataHeader structure. */
 int getLength(dataHeader *header);
+
+
+/* Preconditions: An initalized dataHeader is available. The name as the parameter is of correct type.
+Postconditions: Adds a new dataString to the linked structure. The new string is stored in the string pointer within the dataString struct. */
+void addString(dataHeader *header, char *str);
