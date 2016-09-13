@@ -74,3 +74,18 @@ void printString(dataHeader *header) {
         string = string->next;
     }
 }
+
+void processStrings(dataHeader *header) {
+    dataString *string;
+    string = header->next;
+    while (string != NULL) {
+        char *test = malloc(sizeof(string->string));
+        int i = 0;
+        strncpy(test, string->string, (sizeof(string->string) + 1));
+        printf("%ld\n", strlen(test));
+        for (i = 0; i < strlen(test); i++) {
+            printf("%s ", &test[i]);
+        }
+        string = string->next;
+    }
+}

@@ -40,5 +40,10 @@ void printString(dataHeader *header);
 
 
 /* Preconditions: An initalized dataHeader is available.
+Postconditions: This function prints out all of the strings stored in the list. */
+void processStrings(dataHeader *header);
+
+
+/* Preconditions: An initalized dataHeader is available.
 Postconditions: Free() all of the dataString structures and the dataHeader structure. */
 void freeStructure(dataHeader *header);

@@ -18,5 +18,7 @@ int main (int argc, const char * argv[]) {
 	printf("length: %d\n", getLength(myHeader));
 	printString(myHeader);
 
+	processStrings(myHeader);
+
 	return 0;
 }
