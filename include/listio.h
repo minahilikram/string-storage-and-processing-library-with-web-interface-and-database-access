@@ -4,7 +4,7 @@ typedef struct {
     struct dataString *next;
 } dataHeader;
 
-typedef struct {
+typedef struct dataString {
     char *string;
     struct dataString *next;
 } dataString;
@@ -32,3 +32,13 @@ int getLength(dataHeader *header);
 /* Preconditions: An initalized dataHeader is available. The name as the parameter is of correct type.
 Postconditions: Adds a new dataString to the linked structure. The new string is stored in the string pointer within the dataString struct. */
 void addString(dataHeader *header, char *str);
+
+
+/* Preconditions: An initalized dataHeader is available.
+Postconditions: This function prints out all of the strings stored in the list. */
+void printString(dataHeader *header);
+
+
+/* Preconditions: An initalized dataHeader is available.
+Postconditions: Free() all of the dataString structures and the dataHeader structure. */
+void freeStructure(dataHeader *header);

@@ -9,7 +9,7 @@ INCLUDES    = -Iinclude
 all : main
 
 main:
-	gcc $(CFLAGS) src/linkedList.c src/main.c -o bin/mainrunnable -Iinclude
+	gcc $(CFLAGS) src/listio.c src/main.c -o bin/mainrunnable -Iinclude
 
 clean:
 	@ rm *.o
