@@ -1,4 +1,4 @@
-typedef struct {
+typedef struct dataHeader {
 	char *name;
     int length;
     struct dataString *next;

@@ -17,3 +17,6 @@ clean:
 
 run:
 	cd bin; ./mainrunnable
+
+checkmem: main
+	valgrind --leak-check=yes --track-origins=yes bin/mainrunnable
