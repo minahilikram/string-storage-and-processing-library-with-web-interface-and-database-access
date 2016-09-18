@@ -12,7 +12,6 @@ main:
 	gcc $(CFLAGS) src/listio.c src/main.c -o bin/mainrunnable -Iinclude
 
 clean:
-	@ rm *.o
 	@ rm bin/*
 
 run:
