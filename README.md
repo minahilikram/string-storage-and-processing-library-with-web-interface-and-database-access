@@ -15,7 +15,7 @@ $ git clone https://github.com/minahilikram/adt-stack
 For an example, see [src/main.c](https://github.com/minahilikram/adt-stack/blob/master/src/main.c)); to execute see below.
 
 ```sh
-$ cd adt-stack/
+$ cd string-storage-and-processing-library/
 $ make
 $ make run
 ```
@@ -23,3 +23,7 @@ $ make run
 ## Limitations
 
 Accepts only 8 characters/spaces/numbers to be added to stack.
+
+## References
+http://stackoverflow.com/a/5457657/6175388
+http://stackoverflow.com/a/2016015/6175388

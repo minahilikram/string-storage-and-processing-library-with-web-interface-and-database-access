@@ -10,8 +10,7 @@ int main (int argc, const char * argv[]) {
 	myHeader = buildHeader();
 
 	setName(myHeader, "mona\0");
-	addString(myHeader, "Hi!   My name is   Mona.\0");
-	addString(myHeader, "Hi! My \tname is   Calvin.\0");
+	addString(myHeader, "Hi!\n\n\n\n\nMy name is Calvin.\0");
 
 	printf("name: %s\n", getName(myHeader));
 	printf("length: %d\n", getLength(myHeader));

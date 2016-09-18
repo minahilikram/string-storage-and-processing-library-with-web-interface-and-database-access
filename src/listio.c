@@ -2,6 +2,7 @@
 #include "listio.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 enum AsciiCharacters {
   SPACE = 32
@@ -74,50 +75,91 @@ void removeWithIndex(char *input, char *output, int index) {
   strncpy(((char*)output)+index,((char*)input)+index+1,strlen(input)-1-index);
 }
 
-void compressChar(char *string, int index, int asciiVal) {
+bool isValInArray(int val, int arr[], int size){
+    int i;
+    for (i=0; i < size; i++) {
+        if (arr[i] == val)
+            return true;
+    }
+    return false;
+}
 
-    if (string[index + 1] == asciiVal) {
+void compressAsciiValueAfterIndex(char *string, int index, int asciiVal[], int size) {
+
+    if (isValInArray(string[index+1], asciiVal, size)) {
       char *output = calloc(strlen(string), sizeof(char));
-
-      removeWithIndex(string, output, index);
+      removeWithIndex(string, output, index+1);
 
       strcpy(string, output);
       free(output);
 
-      compressChar(string, index, asciiVal);
+      compressAsciiValueAfterIndex(string, index, asciiVal, size);
     }
 }
 
-void handleHTMLConversion(char *string, int index) {
+void addWithIndex(char *string, char *output, char *inject, int index) {
 
-    if (string[index + 1] == 10 || string[index + 1] == 13) {
-      /*TODO: Handle Mutiple /n & /r aka <p>*/
+    strncpy(output, string, index);
+    output[index] = '\0';
+    strcat(output, inject);
+    strcat(output, string+index);
+
+}
+
+int handleHTMLConversion(char **string, int index) {
+    char *br = "<br>";
+    char *p = "<p>";
+
+    if ((*string)[index + 1] == 10 || (*string)[index + 1] == 13) {
+      char *output = calloc(strlen(*string)+strlen(p)+1, sizeof(char));
+      int arr[2] = {10, 13};
+
+      compressAsciiValueAfterIndex(*string, index-1, arr, 2);
+      addWithIndex(*string, output, p, index);
+      free(*string);
+      *string = output;
+      output = NULL;
+
+      index += (strlen(p)-1);
 
     } else {
-      /*TODO: <br> stuff*/
+      char *output = calloc(strlen(*string), sizeof(char));
+      removeWithIndex(*string, output, index);
+      strcpy(*string, output);
+      free(output);
 
+      output = calloc(strlen(*string)+strlen(br)+1, sizeof(char));
+      addWithIndex(*string, output, br, index);
+      free(*string);
+      *string = output;
+      output = NULL;
+
+      index += (strlen(br)-1);
     }
+    return index;
 }
 
 void processStrings(dataHeader *header) {
     dataString *node = header->next;
 
     while (node != NULL) {
-
         int i = 0;
+        int asciiArr[1];
         header->length -= strlen(node->string);
         while (node->string[i] != '\0') {
             switch(node->string[i]) {
 
                 case 32:
-                    compressChar(node->string, i, 32);
+                    asciiArr[0] = 32;
+                    compressAsciiValueAfterIndex(node->string, i, asciiArr, 1);
                     break;
                 case 9:
-                    compressChar(node->string, i, 9);
+                    asciiArr[0] = 9;
+                    compressAsciiValueAfterIndex(node->string, i, asciiArr, 1);
                     break;
                 case 10:
                 case 13:
-                    handleHTMLConversion(node->string, i);
+                    i = handleHTMLConversion(&node->string, i);
                     break;
             }
             i++;
@@ -140,4 +182,8 @@ void freeStructure(dataHeader *header) {
 
     free(header->name);
     free(header);
+}
+
+void writeStrings(char *filename, struct dataHeader * header) {
+  
 }
