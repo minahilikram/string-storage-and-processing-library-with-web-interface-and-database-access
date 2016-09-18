@@ -16,14 +16,18 @@ int main (int argc, const char * argv[]) {
 
 	processStrings(myHeader);
 
-	writeStrings("../data/calvin.txt", myHeader);
-	readHeader = readStrings("../data/calvin.txt");
+	writeStrings("calvin.txt", myHeader);
+	readHeader = readStrings("calvin.txt");
 
-	printf("%s\n", getName(readHeader));
-	printf("%d\n", getLength(readHeader));
-	printString(readHeader);
+	if (readHeader != NULL) {
 
-	freeStructure(readHeader);
+		printf("%s\n", getName(readHeader));
+		printf("%d\n", getLength(readHeader));
+
+		printString(readHeader);
+
+		freeStructure(readHeader);
+	}
 	freeStructure(myHeader);
 	return 0;
 }

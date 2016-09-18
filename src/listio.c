@@ -170,27 +170,34 @@ void processStrings(dataHeader *header) {
 }
 
 void freeDataStrings (dataString *string) {
-   if (string->next != NULL) {
+   if (string->next != NULL)
       freeDataStrings(string->next);
-   }
+
    free(string->string);
    free(string);
 }
 
 void freeStructure(dataHeader *header) {
-    freeDataStrings(header->next);
+    if (header == NULL)
+      return;
+
+    if (header->next != NULL)
+      freeDataStrings(header->next);
 
     free(header->name);
     free(header);
 }
 
-void writeInt(FILE *fp, int integer) {
-    fwrite(&integer, sizeof(int), 1, fp);
+void writeInt(FILE *fp, int integer[]) {
+    fwrite(integer, sizeof(int), 1, fp);
 }
 
 void writeString(FILE *fp, char *string) {
-    writeInt(fp, strlen(string));
-    fwrite(string, sizeof(char), strlen(string), fp);
+    int i[1];
+    i[0] = strlen(string)+1;
+
+    writeInt(fp, i);
+    fwrite(string, sizeof(char), strlen(string)+1, fp);
 }
 
 char * readString(FILE *fp, int size) {
@@ -201,8 +208,10 @@ char * readString(FILE *fp, int size) {
 }
 
 int readInt(FILE *fp) {
-    int buffer;
-    fread(&buffer, sizeof(int), 1, fp);
+    int buffer, check = 0;
+    check = fread(&buffer, sizeof(int), 1, fp);
+    if (check == 0)
+      return -1;
     return buffer;
 }
 
@@ -211,24 +220,40 @@ void writeStrings(char *filename, dataHeader *header) {
   dataString *node = header->next;
 
   writeString(fp, header->name);
-  writeInt(fp, header->length);
+  writeInt(fp, &(header->length));
 
-  writeString(fp, node->string);
+  while (node != NULL) {
+    writeString(fp, node->string);
+    node = node->next;
+  }
 
   fclose(fp);
 }
 
 dataHeader *readStrings(char *filename) {
-  dataHeader *header = buildHeader();
-  dataString *node;
+  dataHeader *header;
   FILE *fp = fopen(filename , "r");
 
-  setName(header, readString(fp, readInt(fp)));
-  header->length = readInt(fp);
+  if(fp == NULL) {
+    fclose(fp);
+    return NULL;
+  }
 
-  node = malloc(sizeof(dataString));
-  node->string = readString(fp, readInt(fp));
-  header->next = node;
+  header = buildHeader();
+  header->name = readString(fp, readInt(fp));
+  header->length = readInt(fp);
+  header->next = NULL;
+
+  while (true) {
+    char *string;
+    int length = readInt(fp);
+    if (length == -1)
+      break;
+
+    string = readString(fp, length);
+    addString(header, string);
+    free(string);
+  }
 
   fclose(fp);
 
