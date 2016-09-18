@@ -6,23 +6,24 @@
 int main (int argc, const char * argv[]) {
 
 	dataHeader *myHeader;
+	dataHeader *readHeader;
 
 	myHeader = buildHeader();
 
-	setName(myHeader, "mona\0");
+	setName(myHeader, "My header is awesome.\0");
 	addString(myHeader, "Hi!\n\n\n\n\nMy name is Calvin.\0");
+	addString(myHeader, "Hi!\n\r \t\t   My name is Mona.\0");
 
-	printf("name: %s\n", getName(myHeader));
-	printf("length: %d\n", getLength(myHeader));
+	processStrings(myHeader);
 
-	printString(myHeader);
-	processStrings(myHeader);
-	processStrings(myHeader);
-	processStrings(myHeader);
-	processStrings(myHeader);
-	printString(myHeader);
-	printf("length: %d\n", getLength(myHeader));
+	writeStrings("../data/calvin.txt", myHeader);
+	readHeader = readStrings("../data/calvin.txt");
+
+	printf("%s\n", getName(readHeader));
+	printf("%d\n", getLength(readHeader));
+	printString(readHeader);
+
+	freeStructure(readHeader);
 	freeStructure(myHeader);
-
 	return 0;
 }

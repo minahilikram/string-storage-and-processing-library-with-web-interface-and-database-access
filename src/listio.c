@@ -184,6 +184,53 @@ void freeStructure(dataHeader *header) {
     free(header);
 }
 
-void writeStrings(char *filename, struct dataHeader * header) {
-  
+void writeInt(FILE *fp, int integer) {
+    fwrite(&integer, sizeof(int), 1, fp);
+}
+
+void writeString(FILE *fp, char *string) {
+    writeInt(fp, strlen(string));
+    fwrite(string, sizeof(char), strlen(string), fp);
+}
+
+char * readString(FILE *fp, int size) {
+    char *buffer = NULL;
+    buffer = malloc(size);
+    fread(buffer, sizeof(char), size, fp);
+    return buffer;
+}
+
+int readInt(FILE *fp) {
+    int buffer;
+    fread(&buffer, sizeof(int), 1, fp);
+    return buffer;
+}
+
+void writeStrings(char *filename, dataHeader *header) {
+  FILE *fp = fopen(filename, "w");
+  dataString *node = header->next;
+
+  writeString(fp, header->name);
+  writeInt(fp, header->length);
+
+  writeString(fp, node->string);
+
+  fclose(fp);
+}
+
+dataHeader *readStrings(char *filename) {
+  dataHeader *header = buildHeader();
+  dataString *node;
+  FILE *fp = fopen(filename , "r");
+
+  setName(header, readString(fp, readInt(fp)));
+  header->length = readInt(fp);
+
+  node = malloc(sizeof(dataString));
+  node->string = readString(fp, readInt(fp));
+  header->next = node;
+
+  fclose(fp);
+
+  return header;
 }
