@@ -5,8 +5,8 @@
 
 int main (int argc, const char * argv[]) {
 
-	dataHeader *myHeader;
-	dataHeader *readHeader;
+	struct dataHeader *myHeader;
+	struct dataHeader *readHeader;
 
 	myHeader = buildHeader();
 
