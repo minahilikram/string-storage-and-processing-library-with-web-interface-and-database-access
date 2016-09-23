@@ -66,7 +66,7 @@ void printString(struct dataHeader *header) {
 
 /*** Helper functions for processStrings. ***/
 
-/* Checks whether an arr[] contains the val. Returns a boolean, true if value exists in array or false if it does not. */
+/* [3] Checks whether an arr[] contains the val. Returns a boolean, true if value exists in array or false if it does not. */
 bool isValInArray(int val, int arr[], int size) {
     int i;
     for (i=0; i < size; i++) {
@@ -76,10 +76,10 @@ bool isValInArray(int val, int arr[], int size) {
     return false;
 }
 
-/* Removes a character from string at a specified index. Result is contained in the output stirng. */
+/* [1] Removes a character from string at a specified index. Result is contained in the output stirng. */
 void removeWithIndex(char *input, char *output, int index) {
   strncpy(output, input, index);
-  strncpy(((char*)output)+index,((char*)input)+index+1,strlen(input)-1-index);
+  strncpy(((char*)output)+index, ((char*)input)+index+1, strlen(input)-1-index);
 }
 
 /* Removes all the subsequent occurances of any of the given characters, arr[], after the index provided. */
@@ -95,7 +95,7 @@ void compressAsciiValueAfterIndex(char *string, int index, int asciiVal[], int s
     }
 }
 
-/* Adds a specific string to the original string at a specified index. Result is in the output string. */
+/* [2] Adds a specific string to the original string at a specified index. Result is in the output string. */
 void addWithIndex(char *string, char *output, char *inject, int index) {
     strncpy(output, string, index);
     output[index] = '\0';

@@ -27,10 +27,13 @@ $ ls
 ## Limitations
 
 - readString() function uses addString(); addString() keeps count of the length value in the dataHeader struct; therefore the length provided by the binary file is not used, it is instead calculated by the addString(); &mdash; if this is not correct; fix would be to keep length provided by the binary file, by keeping a variable to save the length read in from the binary file.
-- calling readString() on a non-existing file may result in ```sh Makefile:22: recipe for target 'run' failed
-make: *** [run] Segmentation fault (core dumped)```.
+- calling readString() on a non-existing file; results in `Segmentation fault`.
+- calling readString() on a wrong file (one that exists); results in ending the program without writing to the provided file.
 
 ## References
-http://stackoverflow.com/a/5457657/6175388
-http://stackoverflow.com/a/2016015/6175388
-http://stackoverflow.com/a/15102018/6175388
+
+1. function (removeWithIndex())[http://stackoverflow.com/a/5457657/6175388]
+2. function (addWithIndex())[http://stackoverflow.com/a/2016015/6175388]
+3. function (isValInArray())[http://stackoverflow.com/a/15102018/6175388]
+
+*References are also referenced in the code i.e. [reference #] as comments.
