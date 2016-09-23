@@ -27,6 +27,8 @@ $ ls
 ## Limitations
 
 - readString() function uses addString(); addString() keeps count of the length value in the dataHeader struct; therefore the length provided by the binary file is not used, it is instead calculated by the addString(); &mdash; if this is not correct; fix would be to keep length provided by the binary file, by keeping a variable to save the length read in from the binary file.
+- calling readString() on a non-existing file may result in ```sh Makefile:22: recipe for target 'run' failed
+make: *** [run] Segmentation fault (core dumped)```.
 
 ## References
 http://stackoverflow.com/a/5457657/6175388
