@@ -32,8 +32,8 @@ $ ls
 
 ## References
 
-1. function (removeWithIndex())[http://stackoverflow.com/a/5457657/6175388]
-2. function (addWithIndex())[http://stackoverflow.com/a/2016015/6175388]
-3. function (isValInArray())[http://stackoverflow.com/a/15102018/6175388]
+1. function [removeWithIndex()](http://stackoverflow.com/a/5457657/6175388)
+2. function [addWithIndex()](http://stackoverflow.com/a/2016015/6175388)
+3. function [isValInArray()](http://stackoverflow.com/a/15102018/6175388)
 
-*References are also referenced in the code i.e. [reference #] as comments.
+*References are also referenced in the code comments i.e. [reference #].
