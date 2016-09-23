@@ -1,10 +1,3 @@
-/*********************
-Minahil Ikram 0721370
-CIS*2750 Assignment 1
-September 23rd, 2016
-*********************/
-
-
 /* Structure defines the head of the data.
 It contains a data name, length of all the data strings combined and a pointer to the first dataString structure. */
 struct dataHeader {

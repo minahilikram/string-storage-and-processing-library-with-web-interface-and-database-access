@@ -1,21 +1,28 @@
+# C compiler
 CC          =	gcc
 
 # Flags that are sent to the compiler
 CFLAGS      =	-Wall -ansi -pedantic -g
 
-#Directories where the compiler can find things
-INCLUDES    = -Iinclude
+# Directories where the compiler can find things
+INCLUDES    =	-Iinclude
 
-all : main
+# Object files to be created
+OBJS    	=	listio.o
 
-main:
-	gcc $(CFLAGS) src/listio.c src/main.c -o bin/mainrunnable -Iinclude
+# Source File
+SRC			=	listio.c
+
+# Name of the library to be created 
+LIBNAME		= 	liblistio.a
+
+all : mklib
+
+mklib: compile
+	ar cr $(LIBNAME) $(OBJS)
+
+compile:
+	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
 clean:
-	@ rm bin/*
-
-run:
-	cd bin; ./mainrunnable
-
-valgrind:
-	valgrind --leak-check=yes --track-origins=yes bin/mainrunnable
+	@ rm *.o

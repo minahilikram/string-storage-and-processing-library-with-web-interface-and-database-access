@@ -1,10 +1,3 @@
-/*********************
-Minahil Ikram 0721370
-CIS*2750 Assignment 1
-September 23rd, 2016
-*********************/
-
-
 #include <stdio.h>
 #include "listio.h"
 #include <stdlib.h>
@@ -47,7 +40,7 @@ void addString(struct dataHeader *header, char *str) {
    strcpy(string->string, str);
 
    string->next = NULL;
-   header->length = header->length + strlen(str);
+   header->length = header->length + strlen(str) + 1;
    if (header->next == NULL) {
         header->next = string;
     } else {
@@ -74,7 +67,7 @@ void printString(struct dataHeader *header) {
 /*** Helper functions for processStrings. ***/
 
 /* Checks whether an arr[] contains the val. Returns a boolean, true if value exists in array or false if it does not. */
-bool isValInArray(int val, int arr[], int size){
+bool isValInArray(int val, int arr[], int size) {
     int i;
     for (i=0; i < size; i++) {
         if (arr[i] == val)
@@ -263,6 +256,7 @@ struct dataHeader *readStrings(char *filename) {
   header->length = readInt(fp);
   header->next = NULL;
 
+  header->length = 0;
   while (true) {
     char *string;
     int length = readInt(fp);

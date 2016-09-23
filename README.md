@@ -1,29 +1,34 @@
 # string-storage-and-processing-library
 
-[Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) an integer and character based implementation on top of a linked list ADT on C Algorithms for applications.
+A system which stores strings in a [linked structure](https://en.wikipedia.org/wiki/Linked_data_structure).
 
-> Stack is a LIFO (for last in, first out) abstract data type that serves as a collection of elements, with two principal operations: push, which adds an element to the collection, and pop, which removes the most recently added element that was not yet removed.
+> Contains function(s) necessary to process the string to remove redundant whitespace characters and format it using HTML tags. The strings can be stored and retrieved from binary files.
 
 ## Install
 
 ```sh
-$ git clone https://github.com/minahilikram/adt-stack
+# download file from dropbox
+$ unzip a1_minahilikram.zip -d a1_minahilikram
 ```
 
 ## Usage
 
-For an example, see [src/main.c](https://github.com/minahilikram/adt-stack/blob/master/src/main.c)); to execute see below.
-
 ```sh
-$ cd string-storage-and-processing-library/
+$ cd a1_minahilikram/
 $ make
-$ make run
+# Confirm that .a and .h file are present.
+$ ls
+```
+```c
+// Include the header to use the library.
+#include "listio.h"
 ```
 
 ## Limitations
 
-Accepts only 8 characters/spaces/numbers to be added to stack.
+- readString() function uses addString(); addString() keeps count of the length value in the dataHeader struct; therefore the length provided by the binary file is not used, it is instead calculated by the addString(); &mdash; if this is not correct; fix would be to keep length provided by the binary file, by keeping a variable to save the length read in from the binary file.
 
 ## References
 http://stackoverflow.com/a/5457657/6175388
 http://stackoverflow.com/a/2016015/6175388
+http://stackoverflow.com/a/15102018/6175388
