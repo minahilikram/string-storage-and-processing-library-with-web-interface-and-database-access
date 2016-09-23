@@ -36,4 +36,8 @@ $ ls
 2. function [addWithIndex()](http://stackoverflow.com/a/2016015/6175388)
 3. function [isValInArray()](http://stackoverflow.com/a/15102018/6175388)
 
-*References are also referenced in the code comments i.e. [reference #].
+*References are also referenced in the code comments i.e. [reference #].*
+
+### About Developer
+
+Minahil Ikram 0721370
