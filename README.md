@@ -38,6 +38,6 @@ $ ls
 
 *References are also referenced in the code comments i.e. [reference #].*
 
-### About Developer
+### Developer
 
 > Minahil Ikram 0721370
