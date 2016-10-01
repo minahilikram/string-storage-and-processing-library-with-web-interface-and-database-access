@@ -1,3 +1,9 @@
+/* Structure defines a return value to indicate the success or failure of a function. */
+struct returnStruct {
+    int value;
+    struct dataHeader *header;
+};
+
 /* Structure defines the head of the data.
 It contains a data name, length of all the data strings combined and a pointer to the first dataString structure. */
 struct dataHeader {

@@ -29,27 +29,26 @@ int getLength(struct dataHeader *header) {
 }
 
 void addString(struct dataHeader *header, char *str) {
-   struct dataString *string;
-   string = malloc(sizeof(struct dataString));
+    struct dataString *string;
+    string = malloc(sizeof(struct dataString));
 
-   if (str == NULL) {
-      return;
-   }
-   string->string = NULL;
-   string->string = malloc(strlen(str)+1);
-   strcpy(string->string, str);
+    if (str == NULL) {
+        return;
+    }
+    string->string = NULL;
+    string->string = malloc(strlen(str)+1);
+    strcpy(string->string, str);
 
-   string->next = NULL;
-   header->length = header->length + strlen(str) + 1;
-   if (header->next == NULL) {
+    string->next = NULL;
+    header->length = header->length + strlen(str) + 1;
+    if (header->next == NULL) {
         header->next = string;
     } else {
         struct dataString *current;
         current = header->next;
-        /*TODO: maybe move to getTail function*/
         while (current->next != NULL) {
-           current = current->next;
-         }
+            current = current->next;
+        }
         current->next = string;
     }
 }
@@ -70,28 +69,29 @@ void printString(struct dataHeader *header) {
 bool isValInArray(int val, int arr[], int size) {
     int i;
     for (i=0; i < size; i++) {
-        if (arr[i] == val)
+        if (arr[i] == val) {
             return true;
+        }
     }
     return false;
 }
 
 /* [1] Removes a character from string at a specified index. Result is contained in the output stirng. */
 void removeWithIndex(char *input, char *output, int index) {
-  strncpy(output, input, index);
-  strncpy(((char*)output)+index, ((char*)input)+index+1, strlen(input)-1-index);
+    strncpy(output, input, index);
+    strncpy(((char*)output)+index, ((char*)input)+index+1, strlen(input)-1-index);
 }
 
 /* Removes all the subsequent occurances of any of the given characters, arr[], after the index provided. */
 void compressAsciiValueAfterIndex(char *string, int index, int asciiVal[], int size) {
     if (isValInArray(string[index+1], asciiVal, size)) {
-      char *output = calloc(strlen(string), sizeof(char));
-      removeWithIndex(string, output, index+1);
+        char *output = calloc(strlen(string), sizeof(char));
+        removeWithIndex(string, output, index+1);
 
-      strcpy(string, output);
-      free(output);
+        strcpy(string, output);
+        free(output);
 
-      compressAsciiValueAfterIndex(string, index, asciiVal, size);
+        compressAsciiValueAfterIndex(string, index, asciiVal, size);
     }
 }
 
@@ -109,30 +109,30 @@ int handleHTMLConversion(char **string, int index) {
     char *p = "<p>";
 
     if ((*string)[index + 1] == 10 || (*string)[index + 1] == 13) {
-      char *output = calloc(strlen(*string)+strlen(p)+1, sizeof(char));
-      int arr[2] = {10, 13};
+        char *output = calloc(strlen(*string)+strlen(p)+1, sizeof(char));
+        int arr[2] = {10, 13};
 
-      compressAsciiValueAfterIndex(*string, index-1, arr, 2);
-      addWithIndex(*string, output, p, index);
-      free(*string);
-      *string = output;
-      output = NULL;
+        compressAsciiValueAfterIndex(*string, index-1, arr, 2);
+        addWithIndex(*string, output, p, index);
+        free(*string);
+        *string = output;
+        output = NULL;
 
-      index += (strlen(p)-1);
+        index += (strlen(p)-1);
 
     } else {
-      char *output = calloc(strlen(*string), sizeof(char));
-      removeWithIndex(*string, output, index);
-      strcpy(*string, output);
-      free(output);
+        char *output = calloc(strlen(*string), sizeof(char));
+        removeWithIndex(*string, output, index);
+        strcpy(*string, output);
+        free(output);
 
-      output = calloc(strlen(*string)+strlen(br)+1, sizeof(char));
-      addWithIndex(*string, output, br, index);
-      free(*string);
-      *string = output;
-      output = NULL;
+        output = calloc(strlen(*string)+strlen(br)+1, sizeof(char));
+        addWithIndex(*string, output, br, index);
+        free(*string);
+        *string = output;
+        output = NULL;
 
-      index += (strlen(br)-1);
+        index += (strlen(br)-1);
     }
     return index;
 }
@@ -146,7 +146,6 @@ void processStrings(struct dataHeader *header) {
         header->length -= strlen(node->string);
         while (node->string[i] != '\0') {
             switch(node->string[i]) {
-
                 case 32:
                     asciiArr[0] = 32;
                     compressAsciiValueAfterIndex(node->string, i, asciiArr, 1);
@@ -172,19 +171,22 @@ void processStrings(struct dataHeader *header) {
 
 /* Frees allt he dataStrings after and including the one passed in. */
 void freeDataStrings (struct dataString *string) {
-   if (string->next != NULL)
-      freeDataStrings(string->next);
+    if (string->next != NULL) {
+        freeDataStrings(string->next);
+    }
 
    free(string->string);
    free(string);
 }
 
 void freeStructure(struct dataHeader *header) {
-    if (header == NULL)
-      return;
+    if (header == NULL) {
+        return;
+    }
 
-    if (header->next != NULL)
-      freeDataStrings(header->next);
+    if (header->next != NULL) {
+        freeDataStrings(header->next);
+    }
 
     free(header->name);
     free(header);
@@ -208,18 +210,18 @@ void writeString(FILE *fp, char *string) {
 }
 
 void writeStrings(char *filename, struct dataHeader *header) {
-  FILE *fp = fopen(filename, "w");
-  struct dataString *node = header->next;
+    FILE *fp = fopen(filename, "w");
+    struct dataString *node = header->next;
 
-  writeString(fp, header->name);
-  writeInt(fp, &(header->length));
+    writeString(fp, header->name);
+    writeInt(fp, &(header->length));
 
-  while (node != NULL) {
-    writeString(fp, node->string);
-    node = node->next;
-  }
+    while (node != NULL) {
+        writeString(fp, node->string);
+        node = node->next;
+    }
 
-  fclose(fp);
+    fclose(fp);
 }
 
 
@@ -229,8 +231,11 @@ void writeStrings(char *filename, struct dataHeader *header) {
 int readInt(FILE *fp) {
     int buffer, check = 0;
     check = fread(&buffer, sizeof(int), 1, fp);
-    if (check == 0)
-      return -1;
+
+    if (check == 0) {
+        return -1;
+    }
+
     return buffer;
 }
 
@@ -243,32 +248,33 @@ char* readString(FILE *fp, int size) {
 }
 
 struct dataHeader *readStrings(char *filename) {
-  struct dataHeader *header;
-  FILE *fp = fopen(filename , "r");
+    struct dataHeader *header;
+    FILE *fp = fopen(filename , "r");
 
-  if(fp == NULL) {
+    if(fp == NULL) {
+        fclose(fp);
+        return NULL;
+    }
+
+    header = buildHeader();
+    header->name = readString(fp, readInt(fp));
+    header->length = readInt(fp);
+    header->next = NULL;
+    header->length = 0;
+
+    while (true) {
+        char *string;
+        int length = readInt(fp);
+
+        if (length == -1) {
+            break;
+        }
+
+        string = readString(fp, length);
+        addString(header, string);
+        free(string);
+    }
     fclose(fp);
-    return NULL;
-  }
 
-  header = buildHeader();
-  header->name = readString(fp, readInt(fp));
-  header->length = readInt(fp);
-  header->next = NULL;
-
-  header->length = 0;
-  while (true) {
-    char *string;
-    int length = readInt(fp);
-    if (length == -1)
-      break;
-
-    string = readString(fp, length);
-    addString(header, string);
-    free(string);
-  }
-
-  fclose(fp);
-
-  return header;
+    return header;
 }

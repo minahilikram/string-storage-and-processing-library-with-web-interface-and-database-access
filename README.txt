@@ -8,13 +8,13 @@ A system which stores strings in a [linked structure](https://en.wikipedia.org/w
 
 ```sh
 # download file from dropbox
-$ unzip a1_minahilikram.zip -d a1_minahilikram
+$ unzip a1_minahilikram-0721370.zip -d a1_minahilikram-0721370
 ```
 
 ## Usage
 
 ```sh
-$ cd a1_minahilikram/
+$ cd a1_minahilikram-0721370/
 $ make
 # Confirm that .a and .h file are present.
 $ ls
