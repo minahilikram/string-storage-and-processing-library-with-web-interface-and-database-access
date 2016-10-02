@@ -8,24 +8,27 @@ CFLAGS      =	-Wall -ansi -pedantic -g
 INCLUDES    =	-Iinclude
 
 # Object files to be created
-OBJS    	=	listio.o
+OBJS    	=	obj/listio.o
 
 # Source File
-SRC			=	listio.c
+SRC			=	src/listio.c
 
 # Name of the library to be created
-LIBNAME		= 	liblistio.a
+LIBNAME		= 	include/liblistio.a
 
-DEST		= /home/minahil/Documents/CIS*2750/a1/example
-
-all : mklib
+all :
+	gcc -shared -Wl,-soname,listio -o listio.so -fPIC $(SRC) $(INCLUDES)
 
 mklib: compile
 	ar cr $(LIBNAME) $(OBJS);\
-	cp listio.h $(DEST)
+	chmod +x src/main.py
 
 compile:
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
+run:
+	src/./main.py inputfile
+
 clean:
-	@ rm *.o
+	@ rm obj/*;\
+	@ rm include/*.a

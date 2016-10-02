@@ -4,39 +4,82 @@
 #include <string.h>
 #include <stdbool.h>
 
-struct dataHeader *buildHeader() {
+struct returnStruct *buildHeader() {
+    struct returnStruct *rtn;
     struct dataHeader *header;
-    header = malloc(sizeof(struct dataHeader));
-    header->next = NULL;
-    header->name = NULL;
-    header->length = 0;
 
-    return header;
+    rtn = malloc(sizeof(struct returnStruct));
+
+    if (rtn == NULL) {
+        return NULL;
+    }
+
+    header = malloc(sizeof(struct dataHeader));
+
+    if (header == NULL) {
+        rtn->value = 0;
+        rtn->header = NULL;
+    } else {
+        rtn->value = 1;
+        rtn->header = header;
+
+        header->next = NULL;
+        header->name = NULL;
+        header->length = 0;
+    }
+
+    return rtn;
 }
 
-void setName(struct dataHeader *header, char *name) {
+int setName(struct dataHeader *header, char *name) {
+    if (name == NULL) {
+        return 0;
+    }
+
     header->name = NULL;
     header->name = malloc(strlen(name)+1);
+
+    if (header->name == NULL) {
+        return 0;
+    }
+
     strcpy(header->name, name);
+
+    return 1;
 }
 
 char *getName(struct dataHeader *header) {
+    if (header->name == NULL || (header->name)[0] == '\0') {
+        return NULL;
+    }
     return header->name;
 }
 
 int getLength(struct dataHeader *header) {
+    printf("%d\n", header->length);
     return header->length;
 }
 
-void addString(struct dataHeader *header, char *str) {
+int addString(struct dataHeader *header, char *str) {
     struct dataString *string;
-    string = malloc(sizeof(struct dataString));
 
     if (str == NULL) {
-        return;
+        return 0;
     }
+
+    string = malloc(sizeof(struct dataString));
+
+    if (string == NULL) {
+        return 0;
+    }
+
     string->string = NULL;
     string->string = malloc(strlen(str)+1);
+
+    if (string->string == NULL) {
+        return 0;
+    }
+
     strcpy(string->string, str);
 
     string->next = NULL;
@@ -51,15 +94,24 @@ void addString(struct dataHeader *header, char *str) {
         }
         current->next = string;
     }
+
+    return 1;
 }
 
-void printString(struct dataHeader *header) {
+int printString(struct dataHeader *header) {
     struct dataString *string;
+
+    if (header == NULL || header->next == NULL) {
+        return 0;
+    }
+
     string = header->next;
+
     while (string != NULL) {
         printf("%s\n", string->string);
         string = string->next;
     }
+    return 1;
 }
 
 
@@ -137,8 +189,14 @@ int handleHTMLConversion(char **string, int index) {
     return index;
 }
 
-void processStrings(struct dataHeader *header) {
-    struct dataString *node = header->next;
+int processStrings(struct dataHeader *header) {
+    struct dataString *node;
+
+    if (header == NULL || header->next == NULL) {
+        return 0;
+    }
+
+    node = header->next;
 
     while (node != NULL) {
         int i = 0;
@@ -164,12 +222,14 @@ void processStrings(struct dataHeader *header) {
         header->length += strlen(node->string);
         node = node->next;
     }
+
+    return 1;
 }
 
 
 /*** Helper free function ***/
 
-/* Frees allt he dataStrings after and including the one passed in. */
+/* Frees all the dataStrings after and including the one passed in. */
 void freeDataStrings (struct dataString *string) {
     if (string->next != NULL) {
         freeDataStrings(string->next);
@@ -179,9 +239,9 @@ void freeDataStrings (struct dataString *string) {
    free(string);
 }
 
-void freeStructure(struct dataHeader *header) {
+int freeStructure(struct dataHeader *header) {
     if (header == NULL) {
-        return;
+        return 0;
     }
 
     if (header->next != NULL) {
@@ -190,6 +250,8 @@ void freeStructure(struct dataHeader *header) {
 
     free(header->name);
     free(header);
+
+    return 1;
 }
 
 
@@ -209,9 +271,18 @@ void writeString(FILE *fp, char *string) {
     fwrite(string, sizeof(char), strlen(string)+1, fp);
 }
 
-void writeStrings(char *filename, struct dataHeader *header) {
+int writeStrings(char *filename, struct dataHeader *header) {
     FILE *fp = fopen(filename, "w");
     struct dataString *node = header->next;
+
+    if (fp == NULL) {
+        return 0;
+    }
+
+    if (header == NULL || header->name == NULL) {
+        fclose(fp);
+        return 0;
+    }
 
     writeString(fp, header->name);
     writeInt(fp, &(header->length));
@@ -222,6 +293,7 @@ void writeStrings(char *filename, struct dataHeader *header) {
     }
 
     fclose(fp);
+    return 0;
 }
 
 
@@ -247,20 +319,53 @@ char* readString(FILE *fp, int size) {
     return buffer;
 }
 
-struct dataHeader *readStrings(char *filename) {
-    struct dataHeader *header;
-    FILE *fp = fopen(filename , "r");
+/*TODO: FILE pointer changed to beginning.*/
+bool isFileEmpty(FILE *fp) {
+    int len;
 
     if(fp == NULL) {
-        fclose(fp);
+      return true;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    len = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    if (len == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+struct returnStruct *readStrings(char *filename) {
+    struct returnStruct *rtn;
+    FILE *fp;
+    rtn = buildHeader();
+
+    if (rtn == NULL) {
         return NULL;
     }
 
-    header = buildHeader();
-    header->name = readString(fp, readInt(fp));
-    header->length = readInt(fp);
-    header->next = NULL;
-    header->length = 0;
+    fp = fopen(filename, "r");
+
+    if(fp == NULL) {
+        rtn->value = 0;
+        rtn->header = NULL;
+        return rtn;
+    }
+
+    if(isFileEmpty(fp) || rtn->header == NULL) {
+        fclose(fp);
+        rtn->value = 0;
+        rtn->header = NULL;
+        return rtn;
+    }
+
+    rtn->header->name = readString(fp, readInt(fp));
+    rtn->header->length = readInt(fp);
+    rtn->header->next = NULL;
+    rtn->header->length = 0;
 
     while (true) {
         char *string;
@@ -271,10 +376,10 @@ struct dataHeader *readStrings(char *filename) {
         }
 
         string = readString(fp, length);
-        addString(header, string);
+        addString(rtn->header, string);
         free(string);
     }
-    fclose(fp);
 
-    return header;
+    fclose(fp);
+    return rtn;
 }
