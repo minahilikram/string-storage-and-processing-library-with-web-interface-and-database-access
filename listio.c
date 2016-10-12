@@ -17,10 +17,10 @@ struct returnStruct *buildHeader() {
     header = malloc(sizeof(struct dataHeader));
 
     if (header == NULL) {
-        rtn->value = 0;
+        rtn->value = FAILURE;
         rtn->header = NULL;
     } else {
-        rtn->value = 1;
+        rtn->value = SUCCESS;
         rtn->header = header;
 
         header->next = NULL;
@@ -33,19 +33,19 @@ struct returnStruct *buildHeader() {
 
 int setName(struct dataHeader *header, char *name) {
     if (name == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     header->name = NULL;
     header->name = malloc(strlen(name)+1);
 
     if (header->name == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     strcpy(header->name, name);
 
-    return 1;
+    return SUCCESS;
 }
 
 char *getName(struct dataHeader *header) {
@@ -56,7 +56,6 @@ char *getName(struct dataHeader *header) {
 }
 
 int getLength(struct dataHeader *header) {
-    printf("%d\n", header->length);
     return header->length;
 }
 
@@ -64,20 +63,20 @@ int addString(struct dataHeader *header, char *str) {
     struct dataString *string;
 
     if (str == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     string = malloc(sizeof(struct dataString));
 
     if (string == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     string->string = NULL;
     string->string = malloc(strlen(str)+1);
 
     if (string->string == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     strcpy(string->string, str);
@@ -95,14 +94,14 @@ int addString(struct dataHeader *header, char *str) {
         current->next = string;
     }
 
-    return 1;
+    return SUCCESS;
 }
 
 int printString(struct dataHeader *header) {
     struct dataString *string;
 
     if (header == NULL || header->next == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     string = header->next;
@@ -111,7 +110,7 @@ int printString(struct dataHeader *header) {
         printf("%s\n", string->string);
         string = string->next;
     }
-    return 1;
+    return SUCCESS;
 }
 
 
@@ -264,7 +263,7 @@ int processStrings(struct dataHeader *header) {
     struct dataString *node, *prev = NULL;
 
     if (header == NULL || header->next == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     node = header->next;
@@ -298,7 +297,7 @@ int processStrings(struct dataHeader *header) {
 
     }
 
-    return 1;
+    return SUCCESS;
 }
 
 
@@ -316,7 +315,7 @@ void freeDataStrings (struct dataString *string) {
 
 int freeStructure(struct dataHeader *header) {
     if (header == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     if (header->next != NULL) {
@@ -326,7 +325,7 @@ int freeStructure(struct dataHeader *header) {
     free(header->name);
     free(header);
 
-    return 1;
+    return SUCCESS;
 }
 
 
@@ -351,12 +350,12 @@ int writeStrings(char *filename, struct dataHeader *header) {
     struct dataString *node = header->next;
 
     if (fp == NULL) {
-        return 0;
+        return FAILURE;
     }
 
     if (header == NULL || header->name == NULL) {
         fclose(fp);
-        return 0;
+        return FAILURE;
     }
 
     writeString(fp, header->name);
@@ -368,7 +367,7 @@ int writeStrings(char *filename, struct dataHeader *header) {
     }
 
     fclose(fp);
-    return 0;
+    return SUCCESS;
 }
 
 
@@ -425,18 +424,19 @@ struct returnStruct *readStrings(char *filename) {
     fp = fopen(filename, "r");
 
     if(fp == NULL) {
-        rtn->value = 0;
+        rtn->value = FAILURE;
         rtn->header = NULL;
         return rtn;
     }
 
     if(isFileEmpty(fp) || rtn->header == NULL) {
         fclose(fp);
-        rtn->value = 0;
+        rtn->value = FAILURE;
         rtn->header = NULL;
         return rtn;
     }
 
+    rtn->value = SUCCESS;
     rtn->header->name = readString(fp, readInt(fp));
     rtn->header->length = readInt(fp);
     rtn->header->next = NULL;

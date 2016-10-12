@@ -54,7 +54,7 @@ void createHTMLFile(char *filename) {
     Py_DECREF(pName);
 
     if (pModule != NULL) {
-        pFunc = PyObject_GetAttrString(pModule, "readQueue");
+        pFunc = PyObject_GetAttrString(pModule, "rwQueue");
         /* pFunc is a new reference */
 
         if (pFunc && PyCallable_Check(pFunc)) {

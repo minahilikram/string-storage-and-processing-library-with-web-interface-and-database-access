@@ -2,20 +2,7 @@
 
 import os, sys
 
-# open a fifo queue for writing, write 10 strings, close fifo
-# sends text through a fifo queue to the reader program
-
-# filename = "./q1"
-# pipe = os.open(filename, os.O_WRONLY)
-# for i in range(10):
-#    os.write(pipe, "aa\n")
-# os.close(pipe)
-
-
-# open a fifo queue for reading, read 10 strings, close fifo
-# reads text from another queue sent by the reader program
-
-def readQueue(filename):
+def rwQueue(filename):
     target = open(filename + ".temp", 'w')
     target.write("<html>")
     target.write("<head>")
@@ -30,6 +17,14 @@ def readQueue(filename):
                         info = info[2:]
                         if (line.find(info) > 0):
                             line = line[:(line.find(info))] + "<i>" + line[line.find(info): (line.find(info) + len(info))] + "</i>" + line[(line.find(info) + len(info)):]
+                    if (info[:1] == 'U'):
+                        info = info[2:]
+                        if (line.find(info) > 0):
+                            line = line[:(line.find(info))] + "<u>" + line[line.find(info): (line.find(info) + len(info))] + "</u>" + line[(line.find(info) + len(info)):]
+                    if (info[:1] == 'B'):
+                        info = info[2:]
+                        if (line.find(info) > 0):
+                            line = line[:(line.find(info))] + "<b>" + line[line.find(info): (line.find(info) + len(info))] + "</b>" + line[(line.find(info) + len(info)):]
             target.write(line)
     target.write("</body>")
     target.write("</head>")
