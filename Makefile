@@ -8,27 +8,34 @@ CFLAGS      =	-Wall -ansi -pedantic -g
 INCLUDES    =	-Iinclude
 
 # Object files to be created
-OBJS    	=	obj/listio.o
+OBJS    	=	listio.o
 
 # Source File
-SRC			=	src/listio.c
+SRC			=	listio.c
 
 # Name of the library to be created
-LIBNAME		= 	include/liblistio.a
+LIBNAME		= 	liblistio.a
 
-all :
-	gcc -shared -Wl,-soname,listio -o listio.so -fPIC $(SRC) $(INCLUDES)
+all : mklib main
 
 mklib: compile
-	ar cr $(LIBNAME) $(OBJS);\
-	chmod +x src/main.py
+	ar cr $(LIBNAME) $(OBJS)
 
 compile:
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
+main: link
+	$(CC) main.o -o mainrunnable -llistio -L. -lpython2.7
+
+link:
+	$(CC) $(CFLAGS) main.c -o main.o -c $(INCLUDES)
+
 run:
-	src/./main.py inputfile
+	export PYTHONPATH=`pwd`;\
+	./mainrunnable inputfile
 
 clean:
-	@ rm obj/*;\
-	@ rm include/*.a
+	@ rm *.o
+	@ rm *.pyc
+	@ rm *.a
+	@ rm mainrunnable

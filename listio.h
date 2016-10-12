@@ -1,3 +1,6 @@
+#define SUCCESS 1
+#define FAILURE 0
+
 /* Structure defines a return value to indicate the success or failure of a function. */
 struct returnStruct {
     int value;

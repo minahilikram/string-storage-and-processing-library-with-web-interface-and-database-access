@@ -189,8 +189,79 @@ int handleHTMLConversion(char **string, int index) {
     return index;
 }
 
+void compressPTagsAfterIndex(char *string, int index) {
+    int asciiArr[1];
+
+    if (string[index] == 0) {
+        return;
+    }
+
+    if (string[index] == 32 || string[index] == 9) {
+        compressPTagsAfterIndex(string, ++index);
+    }
+
+    if (string[index] == 60 && string[index+1] == 112 && string[index+2] == 62) {
+        asciiArr[0] = 60;
+        compressAsciiValueAfterIndex(string, index-1, asciiArr, 1);
+        asciiArr[0] = 112;
+        compressAsciiValueAfterIndex(string, index-1, asciiArr, 1);
+        asciiArr[0] = 62;
+        compressAsciiValueAfterIndex(string, index-1, asciiArr, 1);
+        compressPTagsAfterIndex(string, index);
+    }
+}
+
+/*TODO: CHANGE VARIABLE NAME*/
+void removePTags(struct dataString *prev) {
+    int i = 0;
+
+    if (prev == NULL) {
+        return;
+    }
+
+    while (prev->string[i] != '\0') {
+        if (i+5 <= strlen(prev->string)) {
+            /* Look to see if p tag exists */
+            if (prev->string[i] == 60 && prev->string[i+1] == 112 && prev->string[i+2] == 62) {
+                compressPTagsAfterIndex(prev->string, i+3);
+            }
+        }
+        i++;
+    }
+}
+
+void removePTagsBetweenNodes(struct dataString *prev, struct dataString *curr) {
+    int i = 0, j = 0;
+
+    if (prev == NULL) {
+        return;
+    }
+
+    while (curr->string[i] != '\0') {
+        if (curr->string[i] == 32 || curr->string[i] == 9) {
+            i++;
+        } else if (i+2 <= strlen(curr->string) && curr->string[i] == 60 && curr->string[i+1] == 112 && curr->string[i+2] == 62) {
+            break;
+        } else {
+            return;
+        }
+    }
+
+    j = strlen(prev->string) - 1;
+    while (j >= 0) {
+        if (prev->string[j] == 32 || prev->string[j] == 9) {
+            j--;
+        } else if (j-2 >= 0 && prev->string[j] == '>' && prev->string[j-1] == 'p' && prev->string[j-2] == '<') {
+            compressPTagsAfterIndex(prev->string, j-2);
+            break;
+        } else {
+            return;
+        }
+    }
+}
+
 int processStrings(struct dataHeader *header) {
-    struct dataString *node;
+    struct dataString *node, *prev = NULL;
 
     if (header == NULL || header->next == NULL) {
         return 0;
@@ -219,8 +290,12 @@ int processStrings(struct dataHeader *header) {
             }
             i++;
         }
+        /**removePTags(node);**/
+        removePTagsBetweenNodes(prev, node);
         header->length += strlen(node->string);
+        prev = node;
         node = node->next;
+
     }
 
     return 1;
