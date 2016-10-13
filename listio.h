@@ -22,7 +22,7 @@ struct dataString {
 };
 
 /* Preconditions: None.
-Postconditions: Returns a pointer to a struct of type dataHeader.
+Postconditions: Returns a pointer to a struct of type returnStruct.
 It dynamically allocates the structure and sets the initial values of the variables. */
 struct returnStruct *buildHeader();
 

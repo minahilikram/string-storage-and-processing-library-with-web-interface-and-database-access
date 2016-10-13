@@ -31,11 +31,11 @@ link:
 	$(CC) $(CFLAGS) main.c -o main.o -c $(INCLUDES)
 
 run:
-	export PYTHONPATH=`pwd`;\
-	./mainrunnable inputfile
+	./mainrunnable ${ARGS}
 
 clean:
 	@ rm *.o
 	@ rm *.pyc
 	@ rm *.a
 	@ rm mainrunnable
+	@ rm *.html

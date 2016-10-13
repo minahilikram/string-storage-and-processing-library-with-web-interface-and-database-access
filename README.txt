@@ -8,27 +8,23 @@ A system which stores strings in a [linked structure](https://en.wikipedia.org/w
 
 ```sh
 # download file from dropbox
-$ unzip a1_minahilikram-0721370.zip -d a1_minahilikram-0721370
+$ unzip a2_minahilikram-0721370.zip -d a2_minahilikram-0721370
 ```
 
 ## Usage
 
 ```sh
-$ cd a1_minahilikram-0721370/
+$ cd a2_minahilikram-0721370/
 $ make
-# Confirm that .a and .h file are present.
-$ ls
-```
-```c
-// Include the header to use the library.
-#include "listio.h"
+$ export PYTHONPATH=`pwd`
+$ make ARGS=<filename> ./mainrunnable
+# make sure <filename>.info is available.
 ```
 
 ## Limitations
 
 - readString() function uses addString(); addString() keeps count of the length value in the dataHeader struct; therefore the length provided by the binary file is not used, it is instead calculated by the addString(); &mdash; if this is not correct; fix would be to keep length provided by the binary file, by keeping a variable to save the length read in from the binary file.
-- calling readString() on a non-existing file; results in `Segmentation fault`.
-- calling readString() on a wrong file (one that exists); results in ending the program without writing to the provided file.
+- program seg faults if PYTHONPATH is not set properly
 
 ## References
 

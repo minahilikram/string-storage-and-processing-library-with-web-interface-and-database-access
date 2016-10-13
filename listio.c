@@ -56,6 +56,9 @@ char *getName(struct dataHeader *header) {
 }
 
 int getLength(struct dataHeader *header) {
+    if (header->length == 0) {
+      return FAILURE;
+    }
     return header->length;
 }
 
@@ -188,6 +191,9 @@ int handleHTMLConversion(char **string, int index) {
     return index;
 }
 
+/* Remove Extra P Tags Extra Functions. */
+
+/* Removes all p tags after given index */
 void compressPTagsAfterIndex(char *string, int index) {
     int asciiArr[1];
 
@@ -210,7 +216,7 @@ void compressPTagsAfterIndex(char *string, int index) {
     }
 }
 
-/*TODO: CHANGE VARIABLE NAME*/
+/* Removes all p tags in given dataString. */
 void removePTags(struct dataString *prev) {
     int i = 0;
 
@@ -229,6 +235,7 @@ void removePTags(struct dataString *prev) {
     }
 }
 
+/* Remove p tags between two given nodes. */
 void removePTagsBetweenNodes(struct dataString *prev, struct dataString *curr) {
     int i = 0, j = 0;
 

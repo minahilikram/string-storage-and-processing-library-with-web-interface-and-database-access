@@ -4,58 +4,167 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-void createHTMLFile(char *filename) {
-		struct returnStruct *myStruct;
-		struct dataString *node;
-		FILE *fp, *fpQ;
+struct returnStruct* textFileToStruct(char *filename, char *headerName);
+void writeFile(struct returnStruct *myStruct, char *filename);
+struct returnStruct* readQueue();
+
+int main(int argc, char *argv[]) {
+		FILE *fp;
 		char *line = NULL;
 		size_t len = 0;
-		PyObject *pName, *pModule, *pFunc, *pArgs, *pValue;
+		char *filenameHTML, *filename;
+		struct returnStruct *structHTML;
+		char cwd[1024];
+		char *PYTHONPATH;
+
+		getcwd(cwd, sizeof(cwd));
+		PYTHONPATH = calloc(strlen("PYTHONPATH=") + (strlen(cwd)) + 1, sizeof(char));
+		strcpy(PYTHONPATH, "PYTHONPATH=");
+		strncat(PYTHONPATH, cwd, strlen(cwd));
+
+		putenv(PYTHONPATH);
+
+		if (argc != 2) {
+				printf("usage: %s <filename>\n", argv[0]);
+				return 0;
+		}
+
+		filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
+		strcpy(filenameHTML, argv[1]);
+		strncat(filenameHTML, ".html", strlen(".html"));
+
+		fp = fopen(filenameHTML, "r");
+		if (fp == NULL) {
+				printf("filename %s does not exist, creating %s\n\n", filenameHTML, filenameHTML);
+				structHTML = textFileToStruct(argv[1], argv[1]);
+
+				if (structHTML == NULL) {
+						printf("textFileToStruct() failed, exiting.\n");
+						freeStructure(structHTML->header);
+						free(structHTML);
+						return 0;
+				}
+
+				if (processStrings(structHTML->header) == FAILURE) {
+						printf("processStrings() failed, exiting.\n");
+						freeStructure(structHTML->header);
+						free(structHTML);
+						return 0;
+				}
+
+				filename = malloc(strlen("./q2")+1);
+				strcpy(filename, "./q2");
+				writeFile(structHTML, filename);
+				free(filename);
+
+				freeStructure(structHTML->header);
+				free(structHTML);
+
+				structHTML = readQueue(argv[1]);
+
+				if (structHTML == NULL) {
+						printf("readQueue() failed, exiting.\n");
+						freeStructure(structHTML->header);
+						free(structHTML);
+						return 0;
+				}
+
+				writeFile(structHTML, filenameHTML);
+				remove("./q2");
+
+				fp = fopen(filenameHTML, "r");
+				while ((getline(&line, &len, fp)) != -1) {
+						printf("%s\n", line);
+				}
+		} else {
+				printf("printing file %s.html.\n\n", argv[1]);
+				while ((getline(&line, &len, fp)) != -1) {
+						printf("%s\n", line);
+				}
+				fclose(fp);
+
+				if (line) {
+						free(line);
+				}
+		}
+
+    return 0;
+}
+
+struct returnStruct* textFileToStruct(char *filename, char *headerName) {
+		struct returnStruct *myStruct;
+		FILE *fp;
+		char *line = NULL;
+		size_t len = 0;
 
 		fp = fopen(filename, "r");
 		if (fp == NULL) {
 				printf("could not find %s\n", filename);
 				fclose(fp);
-				return;
+				return NULL;
 		}
 
 		myStruct = buildHeader();
 
 		if (myStruct->value == FAILURE) {
 				printf("buildHeader() failed, exiting.\n");
-				return;
+				freeStructure(myStruct->header);
+				free(myStruct);
+				return NULL;
 		}
 
-		if (setName(myStruct->header, filename) == FAILURE) {
+		if (setName(myStruct->header, headerName) == FAILURE) {
 				printf("setName() failed, exiting.\n");
-				return;
+				freeStructure(myStruct->header);
+				free(myStruct);
+				return NULL;
 		}
 
 		while ((getline(&line, &len, fp)) != -1) {
-				addString(myStruct->header, line);
+				if (addString(myStruct->header, line) == FAILURE) {
+					printf("addString() failed, exiting.\n");
+					freeStructure(myStruct->header);
+					free(myStruct);
+					return NULL;
+				}
 		}
 
-		processStrings(myStruct->header);
+		fclose(fp);
+		if (line) {
+				free(line);
+		}
 
-		fpQ = fopen("./q2", "w");
+		return myStruct;
+}
+
+void writeFile(struct returnStruct *myStruct, char *filename) {
+		FILE *fp;
+		struct dataString *node;
+
+		fp = fopen(filename, "w");
 		node = myStruct->header->next;
 		while (node != NULL) {
-				fprintf(fpQ, "%s\n", node->string);
+				fprintf(fp, "%s", node->string);
 				node = node->next;
 		}
-		fclose(fpQ);
+		fclose(fp);
+}
+
+struct returnStruct* readQueue(char *filename) {
+		struct returnStruct *readStruct;
+		PyObject *pName, *pModule, *pFunc, *pArgs, *pValue;
+		char *tempFile;
 
     Py_Initialize();
     pName = PyString_FromString("processStrings");
-    /* Error checking of pName left out */
 
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
     if (pModule != NULL) {
         pFunc = PyObject_GetAttrString(pModule, "rwQueue");
-        /* pFunc is a new reference */
 
         if (pFunc && PyCallable_Check(pFunc)) {
 						pArgs = PyTuple_New(1);
@@ -75,54 +184,24 @@ void createHTMLFile(char *filename) {
     else {
         PyErr_Print();
         fprintf(stderr, "Failed to load \"\n");
-        return;
+        return NULL;
     }
     Py_Finalize();
 
-		fpQ = fopen("inputfile.temp", "r");
-		while ((getline(&line, &len, fpQ)) != -1) {
-				printf("%s\n", line);
-		}
-		fclose(fpQ);
+		tempFile = calloc(strlen(filename) + (strlen(".temp")) + 1, sizeof(char));
+		strcpy(tempFile, filename);
+		strncat(tempFile, ".temp", strlen(".temp"));
 
-		fclose(fp);
-		if (line) {
-				free(line);
-		}
+		readStruct = textFileToStruct(tempFile, filename);
 
-		freeStructure(myStruct->header);
-		free(myStruct);
-}
-
-int main(int argc, char *argv[]) {
-		FILE *fp;
-		char *line = NULL;
-		size_t len = 0;
-		char *filenameHTML;
-
-		if (argc != 2) {
-				printf("usage: %s filename\n", argv[0]);
+		if (readStruct == NULL) {
+				printf("textFileToStruct() failed, exiting.\n");
+				freeStructure(readStruct->header);
+				free(readStruct);
 				return 0;
 		}
 
-		filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
-		strcpy(filenameHTML, argv[1]);
-		strncat(filenameHTML, ".html", strlen(".html"));
+		remove(tempFile);
 
-		fp = fopen(filenameHTML, "r");
-		if (fp == NULL) {
-				printf("filename %s does not exist, creating %s\n", filenameHTML, filenameHTML);
-				createHTMLFile(argv[1]);
-		} else {
-				while ((getline(&line, &len, fp)) != -1) {
-						printf("%s\n", line);
-				}
-				fclose(fp);
-
-				if (line) {
-						free(line);
-				}
-		}
-
-    return 0;
+		return readStruct;
 }
