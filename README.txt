@@ -28,9 +28,10 @@ $ make ARGS=<filename> ./mainrunnable
 
 ## References
 
-1. function [removeWithIndex()](http://stackoverflow.com/a/5457657/6175388)
-2. function [addWithIndex()](http://stackoverflow.com/a/2016015/6175388)
-3. function [isValInArray()](http://stackoverflow.com/a/15102018/6175388)
+1. function [listio.c/removeWithIndex()](http://stackoverflow.com/a/5457657/6175388)
+2. function [listio.c/addWithIndex()](http://stackoverflow.com/a/2016015/6175388)
+3. function [listio.c/isValInArray()](http://stackoverflow.com/a/15102018/6175388)
+4. function [main.c/readQueue()](https://docs.python.org/2/extending/embedding.html)
 
 *References are also referenced in the code comments i.e. [reference #].*
 

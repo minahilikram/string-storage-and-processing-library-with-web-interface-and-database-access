@@ -74,6 +74,9 @@ int main(int argc, char *argv[]) {
 				writeFile(structHTML, filenameHTML);
 				remove("./q2");
 
+				freeStructure(structHTML->header);
+				free(structHTML);
+
 				fp = fopen(filenameHTML, "r");
 				while ((getline(&line, &len, fp)) != -1) {
 						printf("%s\n", line);
@@ -89,6 +92,8 @@ int main(int argc, char *argv[]) {
 						free(line);
 				}
 		}
+		free(filenameHTML);
+		free(PYTHONPATH);
 
     return 0;
 }
@@ -152,6 +157,7 @@ void writeFile(struct returnStruct *myStruct, char *filename) {
 		fclose(fp);
 }
 
+/* [4] used to add the python */
 struct returnStruct* readQueue(char *filename) {
 		struct returnStruct *readStruct;
 		PyObject *pName, *pModule, *pFunc, *pArgs, *pValue;
@@ -163,29 +169,16 @@ struct returnStruct* readQueue(char *filename) {
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
-    if (pModule != NULL) {
-        pFunc = PyObject_GetAttrString(pModule, "rwQueue");
+    pFunc = PyObject_GetAttrString(pModule, "rwQueue");
+		pArgs = PyTuple_New(1);
+		pValue = PyString_FromString(filename);
+		PyTuple_SetItem(pArgs, 0, pValue);
+    PyObject_CallObject(pFunc, pArgs);
 
-        if (pFunc && PyCallable_Check(pFunc)) {
-						pArgs = PyTuple_New(1);
-						pValue = PyString_FromString("inputfile");
-						PyTuple_SetItem(pArgs, 0, pValue);
-            PyObject_CallObject(pFunc, pArgs);
-						Py_DECREF(pArgs);
-        }
-        else {
-            if (PyErr_Occurred())
-                PyErr_Print();
-            fprintf(stderr, "Cannot find function \"\n");
-        }
-        Py_XDECREF(pFunc);
-        Py_DECREF(pModule);
-    }
-    else {
-        PyErr_Print();
-        fprintf(stderr, "Failed to load \"\n");
-        return NULL;
-    }
+		Py_DECREF(pArgs);
+		Py_XDECREF(pFunc);
+		Py_DECREF(pModule);
+
     Py_Finalize();
 
 		tempFile = calloc(strlen(filename) + (strlen(".temp")) + 1, sizeof(char));
@@ -202,6 +195,7 @@ struct returnStruct* readQueue(char *filename) {
 		}
 
 		remove(tempFile);
+		free(tempFile);
 
 		return readStruct;
 }
