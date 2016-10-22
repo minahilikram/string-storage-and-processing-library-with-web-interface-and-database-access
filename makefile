@@ -25,7 +25,7 @@ compile:
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
 main: link
-	$(CC) main.o -o mainrunnable -llistio -L. -lpython2.7
+	$(CC) main.o -o mainrunnable -llistio -L.
 
 link:
 	$(CC) $(CFLAGS) main.c -o main.o -c $(INCLUDES)
@@ -35,7 +35,6 @@ run:
 
 clean:
 	@ rm *.o
-	@ rm *.pyc
 	@ rm *.a
 	@ rm mainrunnable
 	@ rm *.html

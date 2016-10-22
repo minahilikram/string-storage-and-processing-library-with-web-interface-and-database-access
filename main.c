@@ -4,27 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
-struct returnStruct* textFileToStruct(char *filename, char *headerName);
+struct returnStruct* textFileToStruct(FILE *fp, char *headerName);
 void writeFile(struct returnStruct *myStruct, char *filename);
-struct returnStruct* readQueue();
 
 int main(int argc, char *argv[]) {
-		FILE *fp;
+		FILE *fp, *read;
 		char *line = NULL;
 		size_t len = 0;
 		char *filenameHTML, *filename;
 		struct returnStruct *structHTML;
-		char cwd[1024];
-		char *PYTHONPATH;
-
-		getcwd(cwd, sizeof(cwd));
-		PYTHONPATH = calloc(strlen("PYTHONPATH=") + (strlen(cwd)) + 1, sizeof(char));
-		strcpy(PYTHONPATH, "PYTHONPATH=");
-		strncat(PYTHONPATH, cwd, strlen(cwd));
-
-		putenv(PYTHONPATH);
 
 		if (argc != 2) {
 				printf("usage: %s <filename>\n", argv[0]);
@@ -38,7 +27,17 @@ int main(int argc, char *argv[]) {
 		fp = fopen(filenameHTML, "r");
 		if (fp == NULL) {
 				printf("filename %s does not exist, creating %s\n\n", filenameHTML, filenameHTML);
-				structHTML = textFileToStruct(argv[1], argv[1]);
+
+				read = fopen(argv[1], "r");
+				if (read == NULL) {
+						printf("could not find: %s\n", argv[1]);
+						fclose(read);
+						return 0;
+				}
+
+				structHTML = textFileToStruct(read, argv[1]);
+
+				fclose(read);
 
 				if (structHTML == NULL) {
 						printf("textFileToStruct() failed, exiting.\n");
@@ -62,54 +61,70 @@ int main(int argc, char *argv[]) {
 				freeStructure(structHTML->header);
 				free(structHTML);
 
-				structHTML = readQueue(argv[1]);
+				filename = calloc(strlen("./processStrings.py ") + (strlen(argv[1])) + (strlen(" &")) + 1, sizeof(char));
+				strcpy(filename, "./processStrings.py ");
+				strncat(filename, argv[1], strlen(argv[1]));
+				strncat(filename, " &", strlen(" &"));
+
+				system(filename);
+
+				mkfifo("./q1", 0777);
+				read = fopen("./q1", "r");
+				if (read == NULL) {
+						printf("could not find: ./q1\n");
+						fclose(read);
+						return 0;
+				}
+
+				structHTML = textFileToStruct(read, argv[1]);
 
 				if (structHTML == NULL) {
-						printf("readQueue() failed, exiting.\n");
+						printf("textFileToStruct() failed, exiting.\n");
 						freeStructure(structHTML->header);
 						free(structHTML);
 						return 0;
 				}
 
+				fclose(read);
+				remove("./q1");
+
 				writeFile(structHTML, filenameHTML);
-				remove("./q2");
 
 				freeStructure(structHTML->header);
 				free(structHTML);
+				free(filename);
 
-				fp = fopen(filenameHTML, "r");
-				while ((getline(&line, &len, fp)) != -1) {
+				read = fopen(filenameHTML, "r");
+				while ((getline(&line, &len, read)) != -1) {
 						printf("%s\n", line);
+				}
+				fclose(read);
+
+				if (line) {
+						free(line);
 				}
 		} else {
 				printf("printing file %s.html.\n\n", argv[1]);
 				while ((getline(&line, &len, fp)) != -1) {
 						printf("%s\n", line);
 				}
+
 				fclose(fp);
 
 				if (line) {
 						free(line);
 				}
 		}
+
 		free(filenameHTML);
-		free(PYTHONPATH);
 
     return 0;
 }
 
-struct returnStruct* textFileToStruct(char *filename, char *headerName) {
+struct returnStruct* textFileToStruct(FILE *fp, char *headerName) {
 		struct returnStruct *myStruct;
-		FILE *fp;
 		char *line = NULL;
 		size_t len = 0;
-
-		fp = fopen(filename, "r");
-		if (fp == NULL) {
-				printf("could not find %s\n", filename);
-				fclose(fp);
-				return NULL;
-		}
 
 		myStruct = buildHeader();
 
@@ -127,7 +142,7 @@ struct returnStruct* textFileToStruct(char *filename, char *headerName) {
 				return NULL;
 		}
 
-		while ((getline(&line, &len, fp)) != -1) {
+		while ((getdelim(&line, &len, '\0', fp)) != -1) {
 				if (addString(myStruct->header, line) == FAILURE) {
 					printf("addString() failed, exiting.\n");
 					freeStructure(myStruct->header);
@@ -136,7 +151,6 @@ struct returnStruct* textFileToStruct(char *filename, char *headerName) {
 				}
 		}
 
-		fclose(fp);
 		if (line) {
 				free(line);
 		}
@@ -155,47 +169,4 @@ void writeFile(struct returnStruct *myStruct, char *filename) {
 				node = node->next;
 		}
 		fclose(fp);
-}
-
-/* [4] used to add the python */
-struct returnStruct* readQueue(char *filename) {
-		struct returnStruct *readStruct;
-		PyObject *pName, *pModule, *pFunc, *pArgs, *pValue;
-		char *tempFile;
-
-    Py_Initialize();
-    pName = PyString_FromString("processStrings");
-
-    pModule = PyImport_Import(pName);
-    Py_DECREF(pName);
-
-    pFunc = PyObject_GetAttrString(pModule, "rwQueue");
-		pArgs = PyTuple_New(1);
-		pValue = PyString_FromString(filename);
-		PyTuple_SetItem(pArgs, 0, pValue);
-    PyObject_CallObject(pFunc, pArgs);
-
-		Py_DECREF(pArgs);
-		Py_XDECREF(pFunc);
-		Py_DECREF(pModule);
-
-    Py_Finalize();
-
-		tempFile = calloc(strlen(filename) + (strlen(".temp")) + 1, sizeof(char));
-		strcpy(tempFile, filename);
-		strncat(tempFile, ".temp", strlen(".temp"));
-
-		readStruct = textFileToStruct(tempFile, filename);
-
-		if (readStruct == NULL) {
-				printf("textFileToStruct() failed, exiting.\n");
-				freeStructure(readStruct->header);
-				free(readStruct);
-				return 0;
-		}
-
-		remove(tempFile);
-		free(tempFile);
-
-		return readStruct;
 }
