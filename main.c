@@ -61,8 +61,8 @@ int main(int argc, char *argv[]) {
 				freeStructure(structHTML->header);
 				free(structHTML);
 
-				filename = calloc(strlen("./processStrings.py ") + (strlen(argv[1])) + (strlen(" &")) + 1, sizeof(char));
-				strcpy(filename, "./processStrings.py ");
+				filename = calloc(strlen("./a3.py ") + (strlen(argv[1])) + (strlen(" &")) + 1, sizeof(char));
+				strcpy(filename, "./a3.py ");
 				strncat(filename, argv[1], strlen(argv[1]));
 				strncat(filename, " &", strlen(" &"));
 
