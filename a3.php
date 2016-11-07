@@ -1,7 +1,7 @@
 <?php
 
-if (array_key_exists('mona', $_POST)) {
-    shell_exec("./mainrunnable " . $_POST['mona']);
+if (array_key_exists('filename', $_POST)) {
+    shell_exec("./a3 " . $_POST['filename']);
 }
 
 if (array_key_exists('fileToUpload', $_FILES)) {
@@ -10,20 +10,11 @@ if (array_key_exists('fileToUpload', $_FILES)) {
     $uploadOk = 1;
     $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-            echo "The file ". basename($_FILES["fileToUpload"]["name"]). " has been uploaded.";
+            echo "The file ". basename($_FILES["fileToUpload"]["name"]). " has been uploaded. <br>";
     } else {
-            echo "Sorry, there was an error uploading your file.";
+            echo "Sorry, there was an error uploading your file. <br>";
     }
 }
-
-echo <<<TEST
-
-<form action="a3.php" method="post">
-    <input type="text" hidden name="mona" value="files/test2.txt">
-    <input type="Submit" value="OK">
-</form>
-
-TEST;
 
 $files = array_filter(glob("files/*"), function($name) {
     return pathinfo($name, PATHINFO_EXTENSION) != 'info';
@@ -55,7 +46,7 @@ echo <<<FORM
         </div>
         <p>
             <form action="a3.php" method="post">
-                <input class="convert" type="text" hidden name="filename" value="files/test2.txt">
+                <input class="convert" type="text" hidden name="filename" value="">
                 <input type="Submit" value="OK">
             </form>
         </p>

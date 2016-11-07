@@ -25,16 +25,16 @@ compile:
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
 main: link
-	$(CC) main.o -o mainrunnable -llistio -L.
+	$(CC) main.o -o a3 -llistio -L.
 
 link:
 	$(CC) $(CFLAGS) main.c -o main.o -c $(INCLUDES)
 
 run:
-	./mainrunnable ${ARGS}
+	./a3 ${ARGS}
 
 clean:
 	@ rm *.o
 	@ rm *.a
-	@ rm mainrunnable
+	@ rm a3
 	@ rm *.html
