@@ -37,4 +37,4 @@ clean:
 	@ rm *.o
 	@ rm *.a
 	@ rm a3
-	@ rm *.html
+	@ rm files/*
