@@ -8,13 +8,13 @@ A system which stores strings in a [linked structure](https://en.wikipedia.org/w
 
 ```sh
 # download file from dropbox
-$ unzip a3_minahilikram-0721370.zip -d a3_minahilikram-0721370
+$ unzip a3_minahilikram-0721370.zip
 ```
 
 ## Usage
 
 ```sh
-$ cd a2_minahilikram-0721370/
+$ cd a3_minahilikram-0721370/
 $ make
 # open web browser and visit PATH_THAT_THE_FILE_IS_LOCATED_IN/a3.php
 ```
@@ -24,6 +24,7 @@ $ make
 - readString() function uses addString(); addString() keeps count of the length value in the dataHeader struct; therefore the length provided by the binary file is not used, it is instead calculated by the addString(); &mdash; if this is not correct; fix would be to keep length provided by the binary file, by keeping a variable to save the length read in from the binary file.
 - program does not work if there is no compiled C code with an executable named 'a3'
 - program cannot upload/convert files which do not have read/write permissions
+- if file is selected after clicking "convert", that filename will stay in stored until another one is clicked, however the action to "convert" will not take place until after "OK" is clicked.
 
 ## References
 
