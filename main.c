@@ -15,7 +15,7 @@
 struct returnStruct* textFileToStruct(FILE *fp, char *headerName);
 void writeFile(struct returnStruct *myStruct, char *filename);
 int convert(char *argv1);
-int store();
+int store(char *argv1);
 
 int main(int argc, char *argv[]) {
 		if (argc == 2) {
@@ -36,9 +36,9 @@ int store(char *argv1) {
 		MYSQL mysql;
 		FILE *read;
 		char query[MAX_QUERY];
-		MYSQL_RES *res;
 
-		char *filenameHTML, *len, *buffer, create[512];
+		char *filenameHTML, *len;
+		char *buffer = NULL;
 		long length;
 
 		filenameHTML = calloc(strlen(argv1) + (strlen(".html")) + 1, sizeof(char));
@@ -53,6 +53,15 @@ int store(char *argv1) {
 				printf("Could not connect to host.\n%s\n", mysql_error(&mysql));
 		}
 
+		query[0] = '\0';
+		strcat(query, "create table IF NOT EXISTS htmlpages (html text not null,");
+		strcat(query, "length int not null,");
+		strcat(query, "name VARCHAR(255) not null PRIMARY KEY,");
+		strcat(query, "date DATETIME not null )");
+		if(mysql_query(&mysql, query)) {
+				printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
+		}
+
 		read = fopen(filenameHTML, "r");
 		if (read) {
 			  fseek(read, 0, SEEK_END);
@@ -60,31 +69,11 @@ int store(char *argv1) {
 				len = malloc(length + 1);
 				sprintf(len, "%ld", length);
 			  fseek(read, 0, SEEK_SET);
-			  buffer = malloc(length + 1);
+			  buffer = calloc((length + 1), sizeof(char));
 			  if(buffer) {
 			    	fread(buffer, 1, length, read);
 			  }
 			  fclose(read);
-		}
-
-		create[0] = '\0';
-		strcat(create, "select * from htmlpages");
-		if (mysql_query(&mysql, create)) {
-				printf("%s\n", mysql_error(&mysql));
-				printf("Creating Table 'mikram.htmlpages'...\n");
-
-				create[0] = '\0';
-				strcat(create, "create table htmlpages (html text not null,");
-				strcat(create, "length int not null,");
-				strcat(create, "name VARCHAR(255) not null PRIMARY KEY,");
-				strcat(create, "date DATETIME not null )");
-				if(mysql_query(&mysql, create)) {
-						printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
-				}
-		}
-
-		if (!(res = mysql_store_result(&mysql))) {
-				printf("Failed to store.\n%s\n", mysql_error(&mysql));
 		}
 
 		if (buffer) {
@@ -99,14 +88,15 @@ int store(char *argv1) {
 				strcat(query, "', now() ); ");
 		}
 		if(mysql_query(&mysql, query)) {
-				printf("Failed to saved %s into htmlpages. \n%s\n", filenameHTML, mysql_error(&mysql));
+				printf("Failed to save %s into htmlpages. \n%s\n", filenameHTML, mysql_error(&mysql));
 		}
 
 		mysql_close(&mysql);
+		mysql_library_end();
 
 		free(filenameHTML);
 		free(buffer);
-		free(read);
+		free(len);
 
 		return 0;
 }

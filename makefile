@@ -47,3 +47,4 @@ clean:
 	@ rm *.a
 	@ rm a3
 	@ rm files/*.html
+	@ rm db
