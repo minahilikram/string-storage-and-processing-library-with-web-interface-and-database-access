@@ -25,16 +25,22 @@ compile:
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
 main: link
-	$(CC) main.o -o a3 -llistio -L.
+	$(CC) main.o -o a3 -llistio -lmysqlclient -L. -L/usr/lib/x86_64-linux-gnu/
 
 link:
 	$(CC) $(CFLAGS) main.c -o main.o -c $(INCLUDES)
 
+db: db.o
+		gcc db.o -o db -lmysqlclient -L/usr/include/mysql
+
+db.o: db.c
+		gcc db.c -o db.o -c
+
 run:
-	./a3 ${ARGS}
+	./a3 files/2750A3test.txt store
 
 clean:
 	@ rm *.o
 	@ rm *.a
 	@ rm a3
-	@ rm files/*
+	@ rm files/*.html

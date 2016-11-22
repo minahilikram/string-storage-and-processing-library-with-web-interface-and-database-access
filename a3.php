@@ -29,7 +29,6 @@ $textfiles = array_filter($files, function($name) {
 });
 
 echo <<<FORM
-
 <button style='float:left;' id="myBtn">Convert</button>
 <div id="myModal" class="modal">
     <div class="modal-content">
@@ -55,10 +54,35 @@ echo <<<FORM
 
 <form style="float: left; padding-left: 5px;" id="upload" action="a3.php" method="post" enctype="multipart/form-data">
     <div>
-        <label style='background-color: buttonface; padding: 2px; border-width: 1px; border-style: outset; border-color: #D3D3D3;' for="fileToUpload">Load</label>
+        <label style='background-color: buttonface; padding: 2px; border-width: 1px; border-style: outset; border-color: #D3D3D3;' for="fileToUpload">Upload</label>
         <input id="fileToUpload" name="fileToUpload" style="visibility:hidden;" type="file">
     </div>
 </form>
+FORM;
+
+echo <<<FORM
+<button style='float:left;' id="myBtn">Db Store</button>
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">x</span>
+        <div>
+            <ul>
+FORM;
+              foreach ($files as $file):
+                  echo "<li onclick='selectFilename(this);' style='cursor: pointer; display: inline-block; padding: 5px;'> $file </li>";
+                  echo "<br>";
+              endforeach;
+echo <<<FORM
+            </ul>
+        </div>
+        <p>
+            <form action="a3.php" method="post">
+                <input class="convert" type="text" hidden name="filename" value="">
+                <input type="Submit" value="OK">
+            </form>
+        </p>
+    </div>
+</div>
 <div style="clear: both;"></div>
 FORM;
 
@@ -129,40 +153,40 @@ echo <<< MODAL
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
-var modal = document.getElementById('myModal');
+    var modal = document.getElementById('myModal');
 
-// Get the button that opens the modal
-var btn = document.getElementById("myBtn");
+    // Get the button that opens the modal
+    var btn = document.getElementById("myBtn");
 
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-modal.style.display = "block";
-}
+    // When the user clicks on the button, open the modal
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
 
-btn.onclick = function() {
-modal.style.display = "block";
-}
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
 
-function selectFilename(item) {
-    $(item).parent().children().css({"background-color": "white"});
-    $(item).css({"background-color": "#D3D3D3"});
-    $(".convert").attr("value", $(item).text().trim());
-}
+    function selectFilename(item) {
+        $(item).parent().children().css({"background-color": "white"});
+        $(item).css({"background-color": "#D3D3D3"});
+        $(".convert").attr("value", $(item).text().trim());
+    }
 
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-modal.style.display = "none";
-}
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
 
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-if (event.target == modal) {
-    modal.style.display = "none";
-}
-}
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 
 </script>
 

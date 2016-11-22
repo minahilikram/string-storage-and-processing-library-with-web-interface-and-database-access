@@ -1,41 +1,104 @@
 #define _GNU_SOURCE
+#define MAX_QUERY 512
+#define HOSTNAME  "dursley.socs.uoguelph.ca"
+#define USERNAME  "mikram"
+#define PASSWORD  "0721370"
+#define DATABASE  "mikram"
+
 #include <python2.7/Python.h>
 #include "listio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mysql/mysql.h>
 
 struct returnStruct* textFileToStruct(FILE *fp, char *headerName);
 void writeFile(struct returnStruct *myStruct, char *filename);
+int convert(char *argv1);
+int store();
 
 int main(int argc, char *argv[]) {
+		if (argc == 2) {
+				convert(argv[1]);
+				return 0;
+		} else if (argc == 3) {
+				convert(argv[1]);
+				store();
+				return 0;
+		} else {
+				printf("usage: %s <filename>\n", argv[0]);
+				printf("usage: %s <filename> store\n", argv[0]);
+				return 0;
+		}
+}
+
+int store() {
+		MYSQL mysql;
+		char query[MAX_QUERY];
+
+		printf("connecting...\n");
+
+		mysql_init(&mysql);
+		mysql_options(&mysql, MYSQL_READ_DEFAULT_GROUP, "mydb");
+		if (!mysql_real_connect(&mysql, HOSTNAME, USERNAME, PASSWORD, DATABASE, 0, NULL, 0)) {
+				printf("Could not connect to host.\n%s\n", mysql_error(&mysql));
+		}
+
+		query[0] = '\0';
+
+		strcat(query, "select * from htmlpages");
+		if(mysql_query(&mysql, query)) {
+				printf("%s\n", mysql_error(&mysql));
+				printf("Creating Table 'mikram.htmlpages'...\n");
+		}
+
+		query[0] = '\0';
+		strcat(query, "create table htmlpages (id int not null auto_increment,");
+		strcat(query, "last_name char(15),");
+		strcat(query, "first_name char(15),");
+		strcat(query, "mark char(2),");
+		strcat(query, "primary key(id) )");
+		if(mysql_query(&mysql, query)) {
+				printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
+		}
+
+		query[0] = '\0';
+
+		/*strcpy(query, "drop table htmlpages");
+		if(mysql_query(&mysql,query)) {
+			printf("fail drop 1\n%s\n", mysql_error(&mysql));
+		}*/
+
+		mysql_close(&mysql);
+		printf("All done\n");
+
+		return 0;
+}
+
+int convert(char *argv1) {
+
 		FILE *fp, *read;
 		char *line = NULL;
 		size_t len = 0;
 		char *filenameHTML, *filename;
 		struct returnStruct *structHTML;
 
-		if (argc != 2) {
-				printf("usage: %s <filename>\n", argv[0]);
-				return 0;
-		}
-
-		filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
-		strcpy(filenameHTML, argv[1]);
+		filenameHTML = calloc(strlen(argv1) + (strlen(".html")) + 1, sizeof(char));
+		strcpy(filenameHTML, argv1);
 		strncat(filenameHTML, ".html", strlen(".html"));
 
 		fp = fopen(filenameHTML, "r");
 		if (fp == NULL) {
 				printf("filename %s does not exist, creating %s\n\n", filenameHTML, filenameHTML);
 
-				read = fopen(argv[1], "r");
+				read = fopen(argv1, "r");
 				if (read == NULL) {
-						printf("could not find: %s\n", argv[1]);
+						printf("could not find: %s\n", argv1);
 						fclose(read);
 						return 0;
 				}
 
-				structHTML = textFileToStruct(read, argv[1]);
+				structHTML = textFileToStruct(read, argv1);
 
 				fclose(read);
 
@@ -61,9 +124,9 @@ int main(int argc, char *argv[]) {
 				freeStructure(structHTML->header);
 				free(structHTML);
 
-				filename = calloc(strlen("./a3.py ") + (strlen(argv[1])) + (strlen(" &")) + 1, sizeof(char));
+				filename = calloc(strlen("./a3.py ") + (strlen(argv1)) + (strlen(" &")) + 1, sizeof(char));
 				strcpy(filename, "./a3.py ");
-				strncat(filename, argv[1], strlen(argv[1]));
+				strncat(filename, argv1, strlen(argv1));
 				strncat(filename, " &", strlen(" &"));
 
 				system(filename);
@@ -76,7 +139,7 @@ int main(int argc, char *argv[]) {
 						return 0;
 				}
 
-				structHTML = textFileToStruct(read, argv[1]);
+				structHTML = textFileToStruct(read, argv1);
 
 				if (structHTML == NULL) {
 						printf("textFileToStruct() failed, exiting.\n");
@@ -104,10 +167,10 @@ int main(int argc, char *argv[]) {
 						free(line);
 				}
 		} else {
-				printf("printing file %s.html.\n\n", argv[1]);
-				while ((getline(&line, &len, fp)) != -1) {
-						printf("%s\n", line);
-				}
+				printf("printing file %s.html.\n\n", argv1);
+						while ((getline(&line, &len, fp)) != -1) {
+								printf("%s\n", line);
+						}
 
 				fclose(fp);
 
@@ -118,7 +181,8 @@ int main(int argc, char *argv[]) {
 
 		free(filenameHTML);
 
-    return 0;
+		return 0;
+
 }
 
 struct returnStruct* textFileToStruct(FILE *fp, char *headerName) {
