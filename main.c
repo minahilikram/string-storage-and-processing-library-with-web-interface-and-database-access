@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#define MAX_QUERY 512
+#define MAX_QUERY 5120
 #define HOSTNAME  "dursley.socs.uoguelph.ca"
 #define USERNAME  "mikram"
 #define PASSWORD  "0721370"
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 				return 0;
 		} else if (argc == 3) {
 				convert(argv[1]);
-				store();
+				store(argv[1]);
 				return 0;
 		} else {
 				printf("usage: %s <filename>\n", argv[0]);
@@ -32,9 +32,18 @@ int main(int argc, char *argv[]) {
 		}
 }
 
-int store() {
+int store(char *argv1) {
 		MYSQL mysql;
+		FILE *read;
 		char query[MAX_QUERY];
+		MYSQL_RES *res;
+
+		char *filenameHTML, *len, *buffer, create[512];
+		long length;
+
+		filenameHTML = calloc(strlen(argv1) + (strlen(".html")) + 1, sizeof(char));
+		strcpy(filenameHTML, argv1);
+		strncat(filenameHTML, ".html", strlen(".html"));
 
 		printf("connecting...\n");
 
@@ -44,39 +53,65 @@ int store() {
 				printf("Could not connect to host.\n%s\n", mysql_error(&mysql));
 		}
 
-		query[0] = '\0';
+		read = fopen(filenameHTML, "r");
+		if (read) {
+			  fseek(read, 0, SEEK_END);
+			  length = ftell(read);
+				len = malloc(length + 1);
+				sprintf(len, "%ld", length);
+			  fseek(read, 0, SEEK_SET);
+			  buffer = malloc(length + 1);
+			  if(buffer) {
+			    	fread(buffer, 1, length, read);
+			  }
+			  fclose(read);
+		}
 
-		strcat(query, "select * from htmlpages");
-		if(mysql_query(&mysql, query)) {
+		create[0] = '\0';
+		strcat(create, "select * from htmlpages");
+		if (mysql_query(&mysql, create)) {
 				printf("%s\n", mysql_error(&mysql));
 				printf("Creating Table 'mikram.htmlpages'...\n");
+
+				create[0] = '\0';
+				strcat(create, "create table htmlpages (html text not null,");
+				strcat(create, "length int not null,");
+				strcat(create, "name VARCHAR(255) not null PRIMARY KEY,");
+				strcat(create, "date DATETIME not null )");
+				if(mysql_query(&mysql, create)) {
+						printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
+				}
 		}
 
-		query[0] = '\0';
-		strcat(query, "create table htmlpages (id int not null auto_increment,");
-		strcat(query, "last_name char(15),");
-		strcat(query, "first_name char(15),");
-		strcat(query, "mark char(2),");
-		strcat(query, "primary key(id) )");
+		if (!(res = mysql_store_result(&mysql))) {
+				printf("Failed to store.\n%s\n", mysql_error(&mysql));
+		}
+
+		if (buffer) {
+				query[0] = '\0';
+
+				strcat(query, "insert into htmlpages values ('");
+				strcat(query, buffer);
+				strcat(query, "', ");
+				strcat(query, len);
+				strcat(query, ", '");
+				strcat(query, argv1);
+				strcat(query, "', now() ); ");
+		}
 		if(mysql_query(&mysql, query)) {
-				printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
+				printf("Failed to saved %s into htmlpages. \n%s\n", filenameHTML, mysql_error(&mysql));
 		}
-
-		query[0] = '\0';
-
-		/*strcpy(query, "drop table htmlpages");
-		if(mysql_query(&mysql,query)) {
-			printf("fail drop 1\n%s\n", mysql_error(&mysql));
-		}*/
 
 		mysql_close(&mysql);
-		printf("All done\n");
+
+		free(filenameHTML);
+		free(buffer);
+		free(read);
 
 		return 0;
 }
 
 int convert(char *argv1) {
-
 		FILE *fp, *read;
 		char *line = NULL;
 		size_t len = 0;

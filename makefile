@@ -39,6 +39,9 @@ db.o: db.c
 run:
 	./a3 files/2750A3test.txt store
 
+valgrind:
+		valgrind ./a3 files/2750A3test.txt store
+
 clean:
 	@ rm *.o
 	@ rm *.a
