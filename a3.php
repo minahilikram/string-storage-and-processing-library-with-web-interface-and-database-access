@@ -30,7 +30,7 @@ $textfiles = array_filter($files, function($name) {
 
 echo <<<FORM
 <button style='float:left;' id="myBtn">Convert</button>
-<div id="myModal" class="modal">
+<div id="convertModal" class="modal">
     <div class="modal-content">
         <span class="close">x</span>
         <div>
@@ -53,7 +53,7 @@ echo <<<FORM
 </div>
 
 <form style="float: left; padding-left: 5px;" id="upload" action="a3.php" method="post" enctype="multipart/form-data">
-    <div>
+    <div style="width: 60px;">
         <label style='background-color: buttonface; padding: 2px; border-width: 1px; border-style: outset; border-color: #D3D3D3;' for="fileToUpload">Upload</label>
         <input id="fileToUpload" name="fileToUpload" style="visibility:hidden;" type="file">
     </div>
@@ -61,8 +61,8 @@ echo <<<FORM
 FORM;
 
 echo <<<FORM
-<button style='float:left;' id="myBtn">Db Store</button>
-<div id="myModal" class="modal">
+<button style='float:left;' id="myBtn">DB Store</button>
+<div id="DBModal" class="modal">
     <div class="modal-content">
         <span class="close">x</span>
         <div>
@@ -153,7 +153,8 @@ echo <<< MODAL
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
-    var modal = document.getElementById('myModal');
+    var modal = document.getElementById('convertModal');
+    var modal = document.getElementById('DBModal');
 
     // Get the button that opens the modal
     var btn = document.getElementById("myBtn");

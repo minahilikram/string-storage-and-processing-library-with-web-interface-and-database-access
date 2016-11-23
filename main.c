@@ -119,7 +119,6 @@ int convert(char *argv1) {
 				read = fopen(argv1, "r");
 				if (read == NULL) {
 						printf("could not find: %s\n", argv1);
-						fclose(read);
 						return 0;
 				}
 
@@ -160,7 +159,6 @@ int convert(char *argv1) {
 				read = fopen("./q1", "r");
 				if (read == NULL) {
 						printf("could not find: ./q1\n");
-						fclose(read);
 						return 0;
 				}
 
