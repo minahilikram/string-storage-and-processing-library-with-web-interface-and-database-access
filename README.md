@@ -26,6 +26,8 @@ $ make
 - program cannot upload/convert files which do not have read/write permissions
 - if file is selected after clicking "convert", that filename will stay in stored until another one is clicked, however the action to "convert" will not take place until after "OK" is clicked.
 
+- chmod 777 foldername
+
 ## References
 
 1. function [listio.c/removeWithIndex()](http://stackoverflow.com/a/5457657/6175388)

@@ -19,11 +19,27 @@ int store(char *argv1);
 
 int main(int argc, char *argv[]) {
 		if (argc == 2) {
+
+				char *filenameHTML = NULL;
+
+				filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
+				strcpy(filenameHTML, argv[1]);
+				strncat(filenameHTML, ".html", strlen(".html"));
+
 				convert(argv[1]);
+				free(filenameHTML);
 				return 0;
 		} else if (argc == 3) {
+				char *filenameHTML = NULL;
+
+				filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
+				strcpy(filenameHTML, argv[1]);
+				strncat(filenameHTML, ".html", strlen(".html"));
+
 				convert(argv[1]);
 				store(argv[1]);
+				remove(filenameHTML);
+				free(filenameHTML);
 				return 0;
 		} else {
 				printf("usage: %s <filename>\n", argv[0]);
@@ -37,9 +53,12 @@ int store(char *argv1) {
 		FILE *read;
 		char query[MAX_QUERY];
 
-		char *filenameHTML, *len;
+		char *filenameHTML = NULL;
 		char *buffer = NULL;
 		long length;
+		char *len = NULL;
+		char *filename = NULL;
+		char *lastdot = NULL;
 
 		filenameHTML = calloc(strlen(argv1) + (strlen(".html")) + 1, sizeof(char));
 		strcpy(filenameHTML, argv1);
@@ -54,9 +73,9 @@ int store(char *argv1) {
 		}
 
 		query[0] = '\0';
-		strcat(query, "create table IF NOT EXISTS htmlpages (html text not null,");
-		strcat(query, "length int not null,");
-		strcat(query, "name VARCHAR(255) not null PRIMARY KEY,");
+		strcat(query, "create table IF NOT EXISTS htmlpages (html text not null, ");
+		strcat(query, "length int not null, ");
+		strcat(query, "name VARCHAR(255) not null PRIMARY KEY, ");
 		strcat(query, "date DATETIME not null )");
 		if(mysql_query(&mysql, query)) {
 				printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
@@ -76,6 +95,12 @@ int store(char *argv1) {
 			  fclose(read);
 		}
 
+		filename = calloc((strlen(argv1) + 1), sizeof(char));
+		strcpy (filename, argv1);
+		lastdot = strrchr(filename, '.');
+    if (lastdot != NULL)
+        *lastdot = '\0';
+
 		if (buffer) {
 				query[0] = '\0';
 
@@ -84,9 +109,10 @@ int store(char *argv1) {
 				strcat(query, "', ");
 				strcat(query, len);
 				strcat(query, ", '");
-				strcat(query, argv1);
+				strcat(query, filename);
 				strcat(query, "', now() ); ");
 		}
+		printf("Saving %s to database...\n", argv1);
 		if(mysql_query(&mysql, query)) {
 				printf("Failed to save %s into htmlpages. \n%s\n", filenameHTML, mysql_error(&mysql));
 		}
@@ -95,6 +121,7 @@ int store(char *argv1) {
 		mysql_library_end();
 
 		free(filenameHTML);
+		free(filename);
 		free(buffer);
 		free(len);
 
