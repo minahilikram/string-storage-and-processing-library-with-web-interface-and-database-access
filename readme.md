@@ -8,7 +8,7 @@ A system which stores strings in a [linked structure](https://en.wikipedia.org/w
 
 ```sh
 # download file from dropbox
-$ unzip a4_minahilikram-0721370.zip
+$ tar -zxvf a4_minahilikram-0721370.tar.gz
 ```
 
 ## Usage
@@ -29,7 +29,8 @@ $ chmod 777 THE_FOLDER_WHERE_CONTENTS_WERE_UNZIPPED/
 - program cannot upload/convert files which do not have read/write permissions
 - if file is selected after clicking "convert", that filename will stay in stored until another one is clicked, however the action to "convert" will not take place until after "OK" is clicked (same goes for DB Store).
 - if you run convert and DB store on the same file, there will be duplicates, one in the DB and one in the files/ folder.
-- DB is hardcoded to my credentials provided by the University of Guelph
+- DB is hardcoded to my credentials provided by the University of Guelph.
+- .info file MUST have the extension of the original text file, i.e. test.txt > test.txt.info, text.info will NOT work.
 
 ## References
 
