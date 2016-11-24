@@ -46,22 +46,6 @@ with open('./q2') as openfileobject:
                         info = info[2:]
                         if (line.find(info) >= 0):
                             line = line[:(line.find(info))] + "<b>" + line[line.find(info): (line.find(info) + len(info))] + "</b>" + line[(line.find(info) + len(info)):]
-        elif (os.path.isfile(basename(filename) + '.info')):
-            with open(basename(filename) + '.info') as infoObject:
-                for info in infoObject:
-                    info = info.rstrip('\n')
-                    if (info[:1] == 'I'):
-                        info = info[2:]
-                        if (line.find(info) >= 0):
-                            line = line[:(line.find(info))] + "<i>" + line[line.find(info): (line.find(info) + len(info))] + "</i>" + line[(line.find(info) + len(info)):]
-                    if (info[:1] == 'U'):
-                        info = info[2:]
-                        if (line.find(info) >= 0):
-                            line = line[:(line.find(info))] + "<u>" + line[line.find(info): (line.find(info) + len(info))] + "</u>" + line[(line.find(info) + len(info)):]
-                    if (info[:1] == 'B'):
-                        info = info[2:]
-                        if (line.find(info) >= 0):
-                            line = line[:(line.find(info))] + "<b>" + line[line.find(info): (line.find(info) + len(info))] + "</b>" + line[(line.find(info) + len(info)):]
         os.write(pipe, line)
 os.remove('./q2')
 

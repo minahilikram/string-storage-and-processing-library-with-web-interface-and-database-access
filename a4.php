@@ -5,14 +5,6 @@ array_shift($DBfiles);
 
 if (isset($_GET["filename"])) {
     echo (shell_exec("./getfiles " . $_GET["filename"]));
-
-echo <<<JS
-    <script>
-        $( document ).ready(function() {
-            $(".main-page").hide();
-        });
-    </script>
-JS;
 }
 
 echo "<div class='main-page' style='display: none;'>";

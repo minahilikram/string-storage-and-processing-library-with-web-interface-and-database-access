@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
 				fp = fopen(filenameHTML, "r");
 				if (fp != NULL) {
 						isInFolder = true;
+						fclose(fp);
 				}
 
 				convert(argv[1]);

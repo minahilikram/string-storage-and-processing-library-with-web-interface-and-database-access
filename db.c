@@ -115,7 +115,7 @@ void show() {
 
         while ((row = mysql_fetch_row(res))) {
             for (i = 0; i < mysql_num_fields(res); i++){
-                 printf("%s \t | \t", row[i]);
+                 printf("%s ", row[i]);
             }
             printf("\n");
         }
