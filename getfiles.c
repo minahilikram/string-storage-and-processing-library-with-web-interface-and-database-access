@@ -1,4 +1,3 @@
-#define MAX_QUERY 5120
 #define HOSTNAME  "dursley.socs.uoguelph.ca"
 #define USERNAME  "mikram"
 #define PASSWORD  "0721370"
@@ -13,8 +12,8 @@ int main(int argc, char *argv[]) {
     char *filename = NULL;
     char *lastdot = NULL;
     MYSQL mysql;
-    char query[MAX_QUERY];
-    MYSQL_RES *res;
+    char *query = NULL;
+    MYSQL_RES *res = NULL;
     MYSQL_ROW row;
     int i = 0;
     char *filenameHTML = NULL;
@@ -26,46 +25,61 @@ int main(int argc, char *argv[]) {
     }
 
     if (argc == 2) {
-        query[0] = '\0';
-
         filename = calloc((strlen(argv[1]) + 1), sizeof(char));
         strcpy (filename, argv[1]);
         lastdot = strrchr(filename, '.');
-        if (lastdot != NULL)
+        if (lastdot != NULL) {
             *lastdot = '\0';
+        }
 
-        strcat(query, "select html from htmlpages where name='");
+        query = calloc(strlen("select html from htmlpages where name='") + strlen(filename) + strlen("'; ") + 1, sizeof(char));
+        strcpy(query, "select html from htmlpages where name='");
         strcat(query, filename);
-        strcat(query, "';");
+        strcat(query, "'; ");
         if(mysql_query(&mysql, query)) {
-            printf("%s\n", mysql_error(&mysql));
+            printf("Could not find file %s in the database. \n %s\n", filename, mysql_error(&mysql));
+        } else {
+            res = mysql_store_result(&mysql);
+
+            if (mysql_num_rows(res) != 0) {
+                while ((row = mysql_fetch_row(res))) {
+                    for (i = 0; i < mysql_num_fields(res); i++){
+                         printf("%s", row[i]);
+                    }
+                    printf("\n");
+                }
+            }
+
+            mysql_free_result(res);
         }
     }
     else {
-        query[0] = '\0';
-        strcpy(query, "select name from htmlpages; ");
+        query = calloc(strlen("select name from htmlpages where exists (select name from htmlpages); ") + 1, sizeof(char));
+        strcpy(query, "select name from htmlpages where exists (select name from htmlpages); ");
         if(mysql_query(&mysql, query)) {
             printf("%s\n", mysql_error(&mysql));
+        } else {
+            res = mysql_store_result(&mysql);
+
+            if (mysql_num_rows(res) != 0) {
+                while ((row = mysql_fetch_row(res))) {
+                    for (i = 0; i < mysql_num_fields(res); i++){
+                         filenameHTML = calloc(strlen(row[i]) + (strlen(".html")) + 1, sizeof(char));
+                         strcpy(filenameHTML, row[i]);
+                         strncat(filenameHTML, ".html", strlen(".html"));
+                         printf("%s ", filenameHTML);
+                    }
+                    printf("\n");
+                }
+            }
+
+            mysql_free_result(res);
         }
     }
 
-    if(!mysql_field_count(&mysql) == 0) {
-      if (!(res = mysql_store_result(&mysql))) {
-          printf("Failed to store rows. \n%s\n", mysql_error(&mysql));
-      }
-
-      while ((row = mysql_fetch_row(res))) {
-          for (i = 0; i < mysql_num_fields(res); i++){
-               filenameHTML = calloc(strlen(row[i]) + (strlen(".html")) + 1, sizeof(char));
-               strcpy(filenameHTML, row[i]);
-               strncat(filenameHTML, ".html", strlen(".html"));
-               printf("%s ", filenameHTML);
-          }
-          printf("\n");
-      }
-    }
-
-    mysql_free_result(res);
+    free(query);
+    free(filename);
+    free(filenameHTML);
     mysql_close(&mysql);
     mysql_library_end();
 

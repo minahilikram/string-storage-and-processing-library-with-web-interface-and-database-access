@@ -1,44 +1,38 @@
-#define _GNU_SOURCE
-#define MAX_QUERY 5120
-#define HOSTNAME  "dursley.socs.uoguelph.ca"
-#define USERNAME  "mikram"
-#define PASSWORD  "0721370"
-#define DATABASE  "mikram"
-
 #include <python2.7/Python.h>
 #include "listio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <mysql/mysql.h>
 
 struct returnStruct* textFileToStruct(FILE *fp, char *headerName);
 void writeFile(struct returnStruct *myStruct, char *filename);
-int convert(char *argv1);
-int store(char *argv1);
+void convert(char *argv1);
+void store(char *argv1);
+char *convertFilenameToHTML(char *filename);
+char *removeFilenameExtension(char *filenameHTML);
 
 int main(int argc, char *argv[]) {
 		if (argc == 2) {
-
-				char *filenameHTML = NULL;
-
-				filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
-				strcpy(filenameHTML, argv[1]);
-				strncat(filenameHTML, ".html", strlen(".html"));
-
 				convert(argv[1]);
-				free(filenameHTML);
 				return 0;
 		} else if (argc == 3) {
-				char *filenameHTML = NULL;
+				FILE *fp;
+				bool isInFolder = false;
+				char *filenameHTML = convertFilenameToHTML(argv[1]);
 
-				filenameHTML = calloc(strlen(argv[1]) + (strlen(".html")) + 1, sizeof(char));
-				strcpy(filenameHTML, argv[1]);
-				strncat(filenameHTML, ".html", strlen(".html"));
+				fp = fopen(filenameHTML, "r");
+				if (fp != NULL) {
+						isInFolder = true;
+				}
 
 				convert(argv[1]);
-				store(argv[1]);
-				remove(filenameHTML);
+				store(filenameHTML);
+
+				if (!isInFolder) {
+						remove(filenameHTML);
+				}
 				free(filenameHTML);
 				return 0;
 		} else {
@@ -48,35 +42,53 @@ int main(int argc, char *argv[]) {
 		}
 }
 
-int store(char *argv1) {
+char *convertFilenameToHTML(char *filename) {
+			char *filenameHTML = NULL;
+			char *name = removeFilenameExtension(filename);
+
+			filenameHTML = calloc(strlen(name) + (strlen(".html")) + 1, sizeof(char));
+			strcpy(filenameHTML, name);
+			strncat(filenameHTML, ".html", strlen(".html"));
+
+			free(name);
+			return (filenameHTML);
+}
+
+char *removeFilenameExtension(char *name) {
+			char *filename = NULL;
+			char *lastdot = NULL;
+
+			filename = calloc((strlen(name) + 1), sizeof(char));
+			strcpy(filename, name);
+			lastdot = strrchr(filename, '.');
+			if (lastdot != NULL) {
+					*lastdot = '\0';
+			}
+
+			return (filename);
+}
+
+void store(char *filenameHTML) {
 		MYSQL mysql;
 		FILE *read;
-		char query[MAX_QUERY];
-
-		char *filenameHTML = NULL;
+		char *query = NULL;
+		char *createQuery = "create table IF NOT EXISTS htmlpages (html longtext not null, length int not null, name VARCHAR(255) not null PRIMARY KEY, date DATETIME not null ); ";
 		char *buffer = NULL;
-		long length;
 		char *len = NULL;
 		char *filename = NULL;
-		char *lastdot = NULL;
-
-		filenameHTML = calloc(strlen(argv1) + (strlen(".html")) + 1, sizeof(char));
-		strcpy(filenameHTML, argv1);
-		strncat(filenameHTML, ".html", strlen(".html"));
+		char *escapeFix = NULL;
+		long length;
 
 		printf("connecting...\n");
 
 		mysql_init(&mysql);
 		mysql_options(&mysql, MYSQL_READ_DEFAULT_GROUP, "mydb");
-		if (!mysql_real_connect(&mysql, HOSTNAME, USERNAME, PASSWORD, DATABASE, 0, NULL, 0)) {
+		if (!mysql_real_connect(&mysql, "dursley.socs.uoguelph.ca", "mikram", "0721370", "mikram", 0, NULL, 0)) {
 				printf("Could not connect to host.\n%s\n", mysql_error(&mysql));
 		}
 
-		query[0] = '\0';
-		strcat(query, "create table IF NOT EXISTS htmlpages (html text not null, ");
-		strcat(query, "length int not null, ");
-		strcat(query, "name VARCHAR(255) not null PRIMARY KEY, ");
-		strcat(query, "date DATETIME not null )");
+		query = calloc(strlen(createQuery) + 1, sizeof(char));
+		strcpy(query, createQuery);
 		if(mysql_query(&mysql, query)) {
 				printf("Could not create table htmlpages.\n%s\n", mysql_error(&mysql));
 		}
@@ -95,24 +107,24 @@ int store(char *argv1) {
 			  fclose(read);
 		}
 
-		filename = calloc((strlen(argv1) + 1), sizeof(char));
-		strcpy (filename, argv1);
-		lastdot = strrchr(filename, '.');
-    if (lastdot != NULL)
-        *lastdot = '\0';
+		filename = removeFilenameExtension(filenameHTML);
 
 		if (buffer) {
-				query[0] = '\0';
 
-				strcat(query, "insert into htmlpages values ('");
-				strcat(query, buffer);
+				escapeFix = calloc((strlen(buffer) * 2) + 1, sizeof(char));
+				mysql_real_escape_string(&mysql, escapeFix, buffer, (strlen(buffer)));
+
+				free(query);
+				query = calloc(strlen("insert into htmlpages values ('") + strlen(escapeFix) + strlen("', ") + strlen(len) + strlen(", '") + strlen(filename) + strlen("', now() ); ")  + 1, sizeof(char));
+				strcpy(query, "insert into htmlpages values ('");
+				strcat(query, escapeFix);
 				strcat(query, "', ");
 				strcat(query, len);
 				strcat(query, ", '");
 				strcat(query, filename);
 				strcat(query, "', now() ); ");
 		}
-		printf("Saving %s to database...\n", argv1);
+		printf("Saving %s to database...\n", filename);
 		if(mysql_query(&mysql, query)) {
 				printf("Failed to save %s into htmlpages. \n%s\n", filenameHTML, mysql_error(&mysql));
 		}
@@ -120,24 +132,21 @@ int store(char *argv1) {
 		mysql_close(&mysql);
 		mysql_library_end();
 
-		free(filenameHTML);
 		free(filename);
 		free(buffer);
 		free(len);
-
-		return 0;
+		free(query);
+		free(escapeFix);
 }
 
-int convert(char *argv1) {
+void convert(char *argv1) {
 		FILE *fp, *read;
 		char *line = NULL;
 		size_t len = 0;
 		char *filenameHTML, *filename;
 		struct returnStruct *structHTML;
 
-		filenameHTML = calloc(strlen(argv1) + (strlen(".html")) + 1, sizeof(char));
-		strcpy(filenameHTML, argv1);
-		strncat(filenameHTML, ".html", strlen(".html"));
+		filenameHTML = convertFilenameToHTML(argv1);
 
 		fp = fopen(filenameHTML, "r");
 		if (fp == NULL) {
@@ -146,7 +155,7 @@ int convert(char *argv1) {
 				read = fopen(argv1, "r");
 				if (read == NULL) {
 						printf("could not find: %s\n", argv1);
-						return 0;
+						return;
 				}
 
 				structHTML = textFileToStruct(read, argv1);
@@ -157,14 +166,14 @@ int convert(char *argv1) {
 						printf("textFileToStruct() failed, exiting.\n");
 						freeStructure(structHTML->header);
 						free(structHTML);
-						return 0;
+						return;
 				}
 
 				if (processStrings(structHTML->header) == FAILURE) {
 						printf("processStrings() failed, exiting.\n");
 						freeStructure(structHTML->header);
 						free(structHTML);
-						return 0;
+						return;
 				}
 
 				filename = malloc(strlen("./q2")+1);
@@ -175,8 +184,8 @@ int convert(char *argv1) {
 				freeStructure(structHTML->header);
 				free(structHTML);
 
-				filename = calloc(strlen("./a3.py ") + (strlen(argv1)) + (strlen(" &")) + 1, sizeof(char));
-				strcpy(filename, "./a3.py ");
+				filename = calloc(strlen("./a4.py ") + (strlen(argv1)) + (strlen(" &")) + 1, sizeof(char));
+				strcpy(filename, "./a4.py ");
 				strncat(filename, argv1, strlen(argv1));
 				strncat(filename, " &", strlen(" &"));
 
@@ -186,7 +195,7 @@ int convert(char *argv1) {
 				read = fopen("./q1", "r");
 				if (read == NULL) {
 						printf("could not find: ./q1\n");
-						return 0;
+						return;
 				}
 
 				structHTML = textFileToStruct(read, argv1);
@@ -195,7 +204,7 @@ int convert(char *argv1) {
 						printf("textFileToStruct() failed, exiting.\n");
 						freeStructure(structHTML->header);
 						free(structHTML);
-						return 0;
+						return;
 				}
 
 				fclose(read);
@@ -230,9 +239,6 @@ int convert(char *argv1) {
 		}
 
 		free(filenameHTML);
-
-		return 0;
-
 }
 
 struct returnStruct* textFileToStruct(FILE *fp, char *headerName) {

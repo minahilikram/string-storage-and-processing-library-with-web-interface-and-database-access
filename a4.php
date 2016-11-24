@@ -1,10 +1,10 @@
 <?php
-$output = shell_exec("./a.out ");
+$output = shell_exec("./getfiles ");
 $DBfiles = preg_split('@(?=files/)@', $output);
 array_shift($DBfiles);
 
 if (isset($_GET["filename"])) {
-    echo (shell_exec("./a.out " . $_GET["filename"]));
+    echo (shell_exec("./getfiles " . $_GET["filename"]));
 
 echo <<<JS
     <script>
@@ -18,11 +18,12 @@ JS;
 echo "<div class='main-page' style='display: none;'>";
 
 if (array_key_exists('filename', $_POST)) {
-    shell_exec("./a3 " . $_POST['filename']);
+    shell_exec("./a4 " . $_POST['filename']);
 }
 
 if (array_key_exists('db', $_POST)) {
-    shell_exec("./a3 " . $_POST['db'] . " store");
+    shell_exec("./a4 " . $_POST['db'] . " store");
+    header("Refresh:0");
 }
 
 if (array_key_exists('fileToUpload', $_FILES)) {
@@ -57,14 +58,14 @@ FORM;
             endforeach;
 echo <<<FORM
           </ul>
-          <form action="a3.php" method="post">
+          <form action="a4.php" method="post">
               <input type="text" hidden name="filename" value="">
               <input type="Submit" value="OK">
           </form>
     </div>
 </div>
 
-<form style="float: left; padding-left: 5px;" id="upload" action="a3.php" method="post" enctype="multipart/form-data">
+<form style="float: left; padding-left: 5px;" id="upload" action="a4.php" method="post" enctype="multipart/form-data">
     <div style="width: 60px;">
         <label style='background-color: buttonface; padding: 2px; border-width: 1px; border-style: outset; border-color: #D3D3D3;' for="fileToUpload">Upload</label>
         <input id="fileToUpload" name="fileToUpload" style="visibility:hidden;" type="file">
@@ -85,7 +86,7 @@ FORM;
             endforeach;
 echo <<<FORM
           </ul>
-          <form action="a3.php" method="post">
+          <form action="a4.php" method="post">
               <input type="text" hidden name="db" value="">
               <input type="Submit" value="OK">
           </form>

@@ -24,8 +24,8 @@ mklib: compile
 compile:
 	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJS) $(INCLUDES)
 
-main: link
-	$(CC) main.o -o a3 -llistio -lmysqlclient -L. -L/usr/lib/x86_64-linux-gnu/
+main: link db getfiles
+	$(CC) main.o -o a4 -llistio -lmysqlclient -L. -L/usr/lib/x86_64-linux-gnu/
 
 link:
 	$(CC) $(CFLAGS) main.c -o main.o -c $(INCLUDES)
@@ -36,15 +36,16 @@ db: db.o
 db.o: db.c
 		gcc db.c -o db.o -c
 
-run:
-	./a3 files/2750A3test.txt store
+getfiles: getfiles.o
+		gcc getfiles.o -o getfiles -lmysqlclient -L/usr/include/mysql
 
-valgrind:
-		valgrind ./a3 files/2750A3test.txt store
+getfiles.o: getfiles.c
+		gcc getfiles.c -o getfiles.o -c
 
 clean:
 	@ rm *.o
 	@ rm *.a
-	@ rm a3
+	@ rm a4
 	@ rm files/*.html
 	@ rm db
+	@ rm getfiles
