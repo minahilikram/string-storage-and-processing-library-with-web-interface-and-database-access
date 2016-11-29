@@ -38,7 +38,7 @@ $ chmod 777 THE_FOLDER_WHERE_CONTENTS_WERE_UNZIPPED/
 2. function [listio.c/addWithIndex()](http://stackoverflow.com/a/2016015/6175388)
 3. function [listio.c/isValInArray()](http://stackoverflow.com/a/15102018/6175388)
 4. used everywhere to [remove filename extension](http://stackoverflow.com/a/2736841)
-5. function [main.c/store](http://stackoverflow.com/a/174552)
+5. function [main.c/store()](http://stackoverflow.com/a/174552)
 
 ### Developer
 
