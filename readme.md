@@ -1,6 +1,6 @@
 # string-storage-and-processing-library-with-web-interface-and-database-access
 
-A system which stores strings in a [linked structure](https://en.wikipedia.org/wiki/Linked_data_structure). The program using the library will call a Python program. A [graphical interface](https://en.wikipedia.org/wiki/Graphical_user_interface) which will allow the user to view files, convert text to html files using the C program using the library. Add [MySQL](https://en.wikipedia.org/wiki/MySQL) database access to the program to store and retrieve html pages using the web page and conversion program.
+A C [static library](https://en.wikipedia.org/wiki/Static_library) which stores strings in a [linked structure](https://en.wikipedia.org/wiki/Linked_data_structure). The program using the library will call a Python program. A [graphical interface](https://en.wikipedia.org/wiki/Graphical_user_interface) which will allow the user to view files, convert text to html files using the C program using the library. Add [MySQL](https://en.wikipedia.org/wiki/MySQL) database access to the program to store and retrieve html pages using the web page and conversion program.
 
 > Contains function(s) necessary to process the string to remove redundant whitespace characters and format it using HTML tags. The strings can be stored and retrieved from binary files. The Python which formats the text as HTML, search for strings in the text and change their font characteristics. A small utility program, db.c, which allows the user to view and manage the database.
 
