@@ -7,13 +7,14 @@ A system which stores strings in a [linked structure](https://en.wikipedia.org/w
 ## Install
 
 ```sh
-# download file from dropbox
-$ tar -zxvf a4_minahilikram-0721370.tar.gz
+# $ git clone git@github.com:minahilikram/string-storage-and-processing-library-with-web-interface-and-database-access.git
+$ unzip string-storage-and-processing-library-with-web-interface-and-database-access.zip -d string-storage-and-processing-library-with-web-interface-and-database-access
 ```
 
 ## Usage
 
 ```sh
+$ cd string-storage-and-processing-library-with-web-interface-and-database-access
 $ make
 $ chmod 777 THE_FOLDER_WHERE_CONTENTS_WERE_UNZIPPED/*
 $ chmod 777 THE_FOLDER_WHERE_CONTENTS_WERE_UNZIPPED/
@@ -39,7 +40,3 @@ $ chmod 777 THE_FOLDER_WHERE_CONTENTS_WERE_UNZIPPED/
 3. function [listio.c/isValInArray()](http://stackoverflow.com/a/15102018/6175388)
 4. used everywhere to [remove filename extension](http://stackoverflow.com/a/2736841)
 5. function [main.c/store()](http://stackoverflow.com/a/174552)
-
-### Developer
-
-Minahil Ikram 0721370
